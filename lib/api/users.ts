@@ -14,6 +14,9 @@ export function createUser(payload: {
   phone: string;
   email: string;
   password: string;
+  // Single-use reCAPTCHA token. The backend verifies it against Google's
+  // siteverify before creating the user and never stores it.
+  captchaToken: string;
 }) {
   return apiRequest<UserRecord>("/admin/users", { method: "POST", body: payload });
 }
