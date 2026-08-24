@@ -1,5 +1,6 @@
 import { apiRequest } from "./http";
 import type { AuthUser } from "@/lib/types";
+import type { UserRole } from "@/lib/enums";
 
 export interface LoginResponse {
   // Backend contract confirms role resolution happens after OTP verify, not
@@ -9,7 +10,12 @@ export interface LoginResponse {
 
 export interface VerifyOtpResponse {
   accessToken: string;
-  user: AuthUser;
+  // The backend returns the resolved role at the TOP level — the nested
+  // `user` object it sends back does not carry a `role` field. Reading
+  // `user.role` yields undefined, which resolves to the /login home path
+  // and bounces the user straight back to the login screen.
+  role: UserRole;
+  user: Omit<AuthUser, "role">;
 }
 
 export function login(employeeCode: string, password: string) {

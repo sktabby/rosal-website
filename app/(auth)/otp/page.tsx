@@ -60,8 +60,8 @@ export default function OtpPage() {
     setLoading(true);
     try {
       const res = await verifyOtp(employeeCode, otp);
-      setSession(res.accessToken, res.user.role);
-      router.push(roleHomePath(res.user.role));
+      setSession(res.accessToken, res.role);
+      router.push(roleHomePath(res.role));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Invalid OTP. Try again.");
       setDigits(Array(OTP_LENGTH).fill(""));
