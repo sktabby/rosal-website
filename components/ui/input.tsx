@@ -13,7 +13,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const [showPassword, setShowPassword] = React.useState(false);
 
     const inputClassName = cn(
-      "w-full rounded-field border-[1.4px] bg-white px-3 py-[11px] text-body text-rsl-black placeholder:text-[#aaaaaa] transition-colors",
+      "w-full rounded-field border-[1.4px] bg-surface px-3 py-[11px] text-body text-ink placeholder:text-placeholder transition-colors",
       "focus:border-rsl-red focus:outline-none",
       "disabled:bg-rsl-bg disabled:text-rsl-muted disabled:border-transparent",
       error ? "border-rsl-red" : "border-rsl-border",
@@ -37,7 +37,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           tabIndex={-1}
           aria-label={showPassword ? "Hide password" : "Show password"}
           onClick={() => setShowPassword((v) => !v)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-rsl-muted transition-colors hover:text-rsl-black"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-rsl-muted transition-colors hover:text-ink"
         >
           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </button>

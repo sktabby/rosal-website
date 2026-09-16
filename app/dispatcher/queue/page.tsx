@@ -51,7 +51,7 @@ export default function DispatcherQueuePage() {
             onClick={() => setMobileTab(c.status)}
             className={cn(
               "shrink-0 rounded-field px-3.5 py-2 text-btn",
-              mobileTab === c.status ? "bg-rsl-red text-white" : "bg-white border border-rsl-border text-rsl-black"
+              mobileTab === c.status ? "bg-rsl-red text-white" : "bg-surface border border-rsl-border text-ink"
             )}
           >
             {c.label} ({grouped[c.status]?.length ?? 0})

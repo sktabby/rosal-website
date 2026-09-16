@@ -59,7 +59,7 @@ export function FormSection({
 }) {
   return (
     <section className={cn("border-t border-rsl-border pt-5 first:border-t-0 first:pt-0", className)}>
-      <h3 className="text-section-label uppercase text-rsl-black">{title}</h3>
+      <h3 className="text-section-label uppercase text-ink">{title}</h3>
       {description && <p className="mt-1 text-meta text-rsl-muted">{description}</p>}
       <div className="mt-3.5">{children}</div>
     </section>

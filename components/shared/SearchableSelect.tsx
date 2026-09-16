@@ -52,19 +52,19 @@ export default function SearchableSelect({
         type="button"
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "flex w-full min-h-[44px] items-center justify-between rounded-field border-[1.4px] bg-white px-3 py-[11px] text-left text-body",
+          "flex w-full min-h-[44px] items-center justify-between rounded-field border-[1.4px] bg-surface px-3 py-[11px] text-left text-body",
           error ? "border-rsl-red" : "border-rsl-border",
           "focus:border-rsl-red focus:outline-none"
         )}
       >
-        <span className={selected ? "text-rsl-black" : "text-[#aaaaaa]"}>
+        <span className={selected ? "text-ink" : "text-placeholder"}>
           {selected ? selected.label : placeholder}
         </span>
         <ChevronDown className="h-4 w-4 shrink-0 text-rsl-muted" />
       </button>
 
       {open && (
-        <div className="absolute z-50 mt-1 w-full rounded-field border border-rsl-border bg-white shadow-pop">
+        <div className="absolute z-50 mt-1 w-full rounded-field border border-rsl-border bg-surface shadow-pop">
           <div className="relative border-b border-rsl-border p-2">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-rsl-muted" />
             <input

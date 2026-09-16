@@ -107,11 +107,11 @@ export default function CreateInvoicePage() {
   return (
     <div className="pb-24 lg:pb-6">
       <BackButton fallbackHref="/accounts/bills" />
-      <h2 className="text-page-title-lg text-rsl-black mb-4">Create Invoice — {bill.id.slice(0, 8).toUpperCase()}</h2>
+      <h2 className="text-page-title-lg text-ink mb-4">Create Invoice — {bill.id.slice(0, 8).toUpperCase()}</h2>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-4">
-          <div className="rounded-card border border-rsl-border bg-white p-4">
+          <div className="rounded-card border border-rsl-border bg-surface p-4">
             <p className="mb-3 text-section-label uppercase text-rsl-muted">Bill To</p>
             <Row label="Client" value={client ? `${client.firstName} ${client.lastName}` : "—"} />
             <Row label="GSTIN" value={client?.gstin ?? "—"} />
@@ -141,7 +141,7 @@ export default function CreateInvoicePage() {
             </div>
           </div>
 
-          <div className="rounded-card border border-rsl-border bg-white p-4">
+          <div className="rounded-card border border-rsl-border bg-surface p-4">
             <p className="mb-3 text-section-label uppercase text-rsl-muted">Shipping / Reference Details</p>
             <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
               <FormField label="e-Way Bill No." hint="Optional">
@@ -167,7 +167,7 @@ export default function CreateInvoicePage() {
             </div>
           </div>
 
-          <div className="rounded-card border border-rsl-border bg-white p-4">
+          <div className="rounded-card border border-rsl-border bg-surface p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-section-label uppercase text-rsl-muted">Buyer Details</p>
               <button
@@ -198,7 +198,7 @@ export default function CreateInvoicePage() {
             </div>
           </div>
 
-          <div className="rounded-card border border-rsl-border bg-white p-4">
+          <div className="rounded-card border border-rsl-border bg-surface p-4">
             <p className="mb-3 text-section-label uppercase text-rsl-muted">Attachment</p>
             <FileUploadField value={externalFileUrl} onChange={setExternalFileUrl} />
           </div>
@@ -219,7 +219,7 @@ export default function CreateInvoicePage() {
       </div>
 
       {/* Sticky mobile Generate button — highest-stakes action, always reachable */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-rsl-border bg-white p-3 lg:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-rsl-border bg-surface p-3 lg:hidden">
         <Button variant="black" size="block" loading={mutation.isPending} onClick={() => mutation.mutate()}>
           Generate Invoice
         </Button>
@@ -230,9 +230,9 @@ export default function CreateInvoicePage() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-[#f2f2f2] py-2 last:border-0">
+    <div className="flex items-start justify-between gap-4 border-b border-line py-2 last:border-0">
       <span className="text-field-label uppercase text-rsl-muted">{label}</span>
-      <span className="text-right text-body text-rsl-black">{value}</span>
+      <span className="text-right text-body text-ink">{value}</span>
     </div>
   );
 }

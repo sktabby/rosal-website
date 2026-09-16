@@ -34,7 +34,7 @@ export default function Pagination({ page, pageSize, total, onPageChange }: Pagi
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
-        <span className="text-body text-rsl-black">
+        <span className="text-body text-ink">
           Page {page} of {totalPages}
         </span>
         <button
@@ -64,7 +64,7 @@ export default function Pagination({ page, pageSize, total, onPageChange }: Pagi
               onClick={() => onPageChange(p)}
               className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-field text-body font-bold",
-                p === page ? "bg-rsl-red text-white" : "text-rsl-black hover:bg-rsl-bg"
+                p === page ? "bg-rsl-red text-white" : "text-ink hover:bg-rsl-bg"
               )}
             >
               {p}

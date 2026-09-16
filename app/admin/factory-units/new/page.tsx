@@ -73,7 +73,7 @@ export default function FactoryUnitCreationPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-5 rounded-card border border-rsl-border bg-white p-4 shadow-card sm:p-5 lg:p-6"
+        className="flex flex-col gap-5 rounded-card border border-rsl-border bg-surface p-4 shadow-card sm:p-5 lg:p-6"
       >
         <FormSection title="Unit Details">
           <FormField label="Factory Unit Name" required error={errors.name}>
@@ -110,7 +110,7 @@ export default function FactoryUnitCreationPage() {
             />
           </FormField>
 
-          <div className="flex gap-2 rounded-field border border-rsl-amber/40 bg-[#fdf3e0] px-3.5 py-3 text-[11.5px] leading-snug text-[#8a5a00]">
+          <div className="flex gap-2 rounded-field border border-rsl-amber/40 bg-notice-bg px-3.5 py-3 text-[11.5px] leading-snug text-notice-fg">
             <Info className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
               Only one dispatcher can be assigned per factory unit, so dispatchers already assigned

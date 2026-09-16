@@ -2,12 +2,91 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Theme tokens as bare RGB channels (consumed via tailwind.config.ts).
+ * Light values are the original locked palette, unchanged. Brand red, amber,
+ * orange and the black sidebar are constants and deliberately not here.
+ */
+:root {
+  color-scheme: light;
+
+  --rsl-bg: 242 242 242;
+  --rsl-bg-soft: 250 250 250;
+  --rsl-border: 226 226 228;
+  --rsl-muted: 107 107 110;
+  --rsl-muted-soft: 136 136 136;
+
+  --surface: 255 255 255;
+  --ink: 20 20 20;
+  --line: 242 242 242;
+  --placeholder: 170 170 170;
+  --label: 85 85 85;
+
+  --notice-bg: 253 243 224;
+  --notice-fg: 138 90 0;
+  --danger-bg: 251 230 230;
+  --danger-fg: 160 24 24;
+
+  --status-pending-bg: 252 232 214;
+  --status-pending-fg: 181 84 10;
+  --status-processing-bg: 220 231 251;
+  --status-processing-fg: 36 82 181;
+  --status-dispatched-bg: 227 219 251;
+  --status-dispatched-fg: 90 44 181;
+  --status-done-bg: 219 243 224;
+  --status-done-fg: 29 138 62;
+  --status-rejected-bg: 251 220 220;
+  --status-rejected-fg: 181 30 30;
+  --status-cancelled-bg: 238 238 238;
+  --status-cancelled-fg: 85 85 85;
+
+  --scrollbar: 217 217 217;
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* Page sits a step darker than cards so surfaces still read as raised,
+     and a step lighter than the #141414 sidebar so the two stay separate. */
+  --rsl-bg: 11 11 12;
+  --rsl-bg-soft: 30 30 33;
+  --rsl-border: 46 46 50;
+  --rsl-muted: 158 158 164;
+  --rsl-muted-soft: 128 128 134;
+
+  --surface: 24 24 27;
+  --ink: 236 236 238;
+  --line: 36 36 40;
+  --placeholder: 108 108 114;
+  --label: 178 178 184;
+
+  --notice-bg: 51 38 10;
+  --notice-fg: 245 196 92;
+  --danger-bg: 60 20 22;
+  --danger-fg: 255 150 150;
+
+  --status-pending-bg: 64 36 12;
+  --status-pending-fg: 250 172 104;
+  --status-processing-bg: 20 36 72;
+  --status-processing-fg: 142 178 250;
+  --status-dispatched-bg: 42 28 78;
+  --status-dispatched-fg: 192 164 250;
+  --status-done-bg: 16 52 30;
+  --status-done-fg: 112 214 142;
+  --status-rejected-bg: 70 20 20;
+  --status-rejected-fg: 250 142 142;
+  --status-cancelled-bg: 44 44 47;
+  --status-cancelled-fg: 172 172 178;
+
+  --scrollbar: 64 64 70;
+}
+
 html,
 body {
   padding: 0;
   margin: 0;
-  background: #f2f2f2;
-  color: #141414;
+  background: rgb(var(--rsl-bg));
+  color: rgb(var(--ink));
   -webkit-font-smoothing: antialiased;
 }
 
@@ -27,7 +106,12 @@ body {
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #f2f2f2 0%, #ececec 40%, #f2f2f2 80%);
+  background: linear-gradient(
+    90deg,
+    rgb(var(--rsl-bg)) 0%,
+    rgb(var(--line)) 40%,
+    rgb(var(--rsl-bg)) 80%
+  );
   background-size: 800px 100%;
 }
 
@@ -37,7 +121,7 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d9d9d9;
+  background: rgb(var(--scrollbar));
   border-radius: 8px;
 }
 ::-webkit-scrollbar-track {

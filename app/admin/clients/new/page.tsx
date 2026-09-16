@@ -106,7 +106,7 @@ export default function ClientCreationPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-5 rounded-card border border-rsl-border bg-white p-4 shadow-card sm:p-5 lg:p-6"
+        className="flex flex-col gap-5 rounded-card border border-rsl-border bg-surface p-4 shadow-card sm:p-5 lg:p-6"
       >
         <FormSection title="Contact Details">
           <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">

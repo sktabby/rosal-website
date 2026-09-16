@@ -17,7 +17,7 @@ export default function PageHeader({
       {backHref && <BackButton fallbackHref={backHref} />}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-page-title-lg text-rsl-black">{title}</h2>
+          <h2 className="text-page-title-lg text-ink">{title}</h2>
           {description && <p className="mt-1 text-body-md text-rsl-muted">{description}</p>}
         </div>
         {actions && <div className="flex flex-wrap gap-2">{actions}</div>}

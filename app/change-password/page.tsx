@@ -47,14 +47,14 @@ export default function ChangePasswordPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-rsl-bg px-4 py-10">
-      <div className="w-full max-w-[400px] rounded-card border border-rsl-border bg-white p-6 shadow-card">
+      <div className="w-full max-w-[400px] rounded-card border border-rsl-border bg-surface p-6 shadow-card">
         <button
           onClick={() => router.back()}
-          className="mb-4 flex items-center gap-1 text-meta text-rsl-muted hover:text-rsl-black"
+          className="mb-4 flex items-center gap-1 text-meta text-rsl-muted hover:text-ink"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back
         </button>
-        <h1 className="text-page-title-lg text-rsl-black mb-5">Change Password</h1>
+        <h1 className="text-page-title-lg text-ink mb-5">Change Password</h1>
 
         <form onSubmit={handleSubmit}>
           <FormField label="Current Password" error={errors.currentPassword}>

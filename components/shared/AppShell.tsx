@@ -55,7 +55,7 @@ export default function AppShell({
         <main
           className={cn(
             "flex-1 overflow-y-auto px-3 py-4 md:px-5 md:py-5 lg:px-6 lg:py-6",
-            tint === "dispatcher" && "bg-gradient-to-b from-red-50/40 via-rsl-bg to-rsl-bg"
+            tint === "dispatcher" && "bg-gradient-to-b from-danger-bg/40 via-rsl-bg to-rsl-bg"
           )}
         >
           <div className="mx-auto w-full max-w-content">{children}</div>

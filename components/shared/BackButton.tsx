@@ -32,11 +32,11 @@ export default function BackButton({
         else router.push(fallbackHref);
       }}
       className={cn(
-        "-ml-1 mb-2 inline-flex min-h-[36px] items-center gap-1.5 rounded-field px-1 text-body-md text-rsl-muted transition-colors hover:text-rsl-black",
+        "-ml-1 mb-2 inline-flex min-h-[36px] items-center gap-1.5 rounded-field px-1 text-body-md text-rsl-muted transition-colors hover:text-ink",
         className
       )}
     >
-      <ArrowLeft className="h-[18px] w-[18px] text-rsl-black" />
+      <ArrowLeft className="h-[18px] w-[18px] text-ink" />
       {label}
     </button>
   );

@@ -67,7 +67,7 @@ export function TitleCell({
     <div className="flex min-w-0 items-center gap-3">
       {leading}
       <div className="min-w-0">
-        <p className="truncate font-bold text-rsl-black">{title}</p>
+        <p className="truncate font-bold text-ink">{title}</p>
         {subtitle && <p className="truncate text-meta font-normal text-rsl-muted">{subtitle}</p>}
       </div>
     </div>
@@ -75,7 +75,7 @@ export function TitleCell({
 }
 
 export function Mono({ children }: { children: React.ReactNode }) {
-  return <span className="font-mono text-[11.5px] tracking-tight text-rsl-black">{children}</span>;
+  return <span className="font-mono text-[11.5px] tracking-tight text-ink">{children}</span>;
 }
 
 /**
@@ -146,15 +146,15 @@ export function RowActions({ onView, onEdit, onDelete, deleting, itemName, itemK
 
   return (
     <div className="flex items-center justify-end gap-0.5">
-      <button onClick={onView} className={cn(iconBtn, "hover:bg-rsl-bg hover:text-rsl-black")} aria-label={`View ${itemName}`} title="View details">
+      <button onClick={onView} className={cn(iconBtn, "hover:bg-rsl-bg hover:text-ink")} aria-label={`View ${itemName}`} title="View details">
         <Eye className="h-4 w-4" />
       </button>
-      <button onClick={onEdit} className={cn(iconBtn, "hover:bg-rsl-bg hover:text-rsl-black")} aria-label={`Edit ${itemName}`} title="Edit">
+      <button onClick={onEdit} className={cn(iconBtn, "hover:bg-rsl-bg hover:text-ink")} aria-label={`Edit ${itemName}`} title="Edit">
         <Pencil className="h-4 w-4" />
       </button>
       <button
         onClick={() => setConfirmOpen(true)}
-        className={cn(iconBtn, "hover:bg-red-50 hover:text-rsl-red")}
+        className={cn(iconBtn, "hover:bg-danger-bg hover:text-rsl-red")}
         aria-label={`Delete ${itemName}`}
         title="Delete"
       >
@@ -209,10 +209,10 @@ export function ViewDialog({
           {fields.map((f) => (
             <div
               key={f.label}
-              className="flex items-start justify-between gap-4 border-b border-[#f2f2f2] py-2.5 last:border-0"
+              className="flex items-start justify-between gap-4 border-b border-line py-2.5 last:border-0"
             >
               <span className="shrink-0 text-body text-rsl-muted">{f.label}</span>
-              <span className="min-w-0 break-words text-right text-body text-rsl-black">{f.value}</span>
+              <span className="min-w-0 break-words text-right text-body text-ink">{f.value}</span>
             </div>
           ))}
         </div>

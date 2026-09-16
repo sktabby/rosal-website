@@ -81,12 +81,12 @@ export default function CompanySettingsPage() {
     <div className="mx-auto max-w-2xl">
       <PageHeader title="Company Settings" backHref="/admin/account" />
 
-      <div className="mb-4 flex gap-2 rounded-field bg-[#fbe6e6] px-3 py-2.5 text-[11.5px] text-[#a01818]">
+      <div className="mb-4 flex gap-2 rounded-field bg-danger-bg px-3 py-2.5 text-[11.5px] text-danger-fg">
         <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
         <span>This information appears on every PI, Bill, and Invoice across the system. Changes apply immediately to new documents.</span>
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-card border border-rsl-border bg-white p-4 lg:p-6">
+      <form onSubmit={handleSubmit} className="rounded-card border border-rsl-border bg-surface p-4 lg:p-6">
         <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
           {FIELD_DEFS.map((f) =>
             f.textarea ? (

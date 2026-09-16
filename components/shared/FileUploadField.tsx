@@ -45,10 +45,10 @@ export default function FileUploadField({
 
   if (value) {
     return (
-      <div className="flex items-center justify-between rounded-field border-[1.4px] border-rsl-border bg-white px-3 py-[11px]">
+      <div className="flex items-center justify-between rounded-field border-[1.4px] border-rsl-border bg-surface px-3 py-[11px]">
         <div className="flex items-center gap-2 min-w-0">
           <FileCheck2 className="h-4 w-4 shrink-0 text-status-done-fg" />
-          <span className="truncate text-body text-rsl-black">{fileName ?? "Attached file"}</span>
+          <span className="truncate text-body text-ink">{fileName ?? "Attached file"}</span>
         </div>
         <button
           type="button"
@@ -70,9 +70,9 @@ export default function FileUploadField({
       type="button"
       onClick={() => inputRef.current?.click()}
       disabled={uploading}
-      className="flex w-full items-center justify-between rounded-field border-[1.4px] border-dashed border-rsl-border bg-white px-3 py-[11px] text-left hover:border-rsl-red disabled:opacity-60"
+      className="flex w-full items-center justify-between rounded-field border-[1.4px] border-dashed border-rsl-border bg-surface px-3 py-[11px] text-left hover:border-rsl-red disabled:opacity-60"
     >
-      <span className="text-body text-[#aaaaaa]">
+      <span className="text-body text-placeholder">
         {uploading ? "Uploading..." : "Attach External PDF (optional)"}
       </span>
       {uploading ? (

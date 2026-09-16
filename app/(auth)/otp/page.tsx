@@ -91,12 +91,12 @@ export default function OtpPage() {
   const otpValue = digits.join("");
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white px-5">
+    <div className="flex min-h-screen items-center justify-center bg-surface px-5">
       <div className="w-full max-w-[360px] text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#fdf3e0]">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-notice-bg">
           <Mail className="h-6 w-6 text-rsl-amber" />
         </div>
-        <h1 className="text-[20px] font-bold text-rsl-black">Verify OTP</h1>
+        <h1 className="text-[20px] font-bold text-ink">Verify OTP</h1>
         <p className="mt-1 text-body-md text-rsl-muted">Sent to your registered email and phone</p>
 
         <div className="mt-6 flex justify-center gap-2">
@@ -112,7 +112,7 @@ export default function OtpPage() {
               inputMode="numeric"
               maxLength={1}
               className={cn(
-                "h-11 w-9 rounded-field border-[1.4px] text-center text-[16px] font-bold text-rsl-black focus:outline-none",
+                "h-11 w-9 rounded-field border-[1.4px] text-center text-[16px] font-bold text-ink focus:outline-none",
                 d ? "border-rsl-red" : "border-rsl-border"
               )}
             />

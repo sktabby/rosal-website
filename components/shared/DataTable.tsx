@@ -54,9 +54,9 @@ export default function DataTable<T>({
     return (
       <div className="space-y-2">
         {/* Desktop skeleton */}
-        <div className="hidden md:block rounded-card border border-rsl-border bg-white overflow-hidden">
+        <div className="hidden md:block rounded-card border border-rsl-border bg-surface overflow-hidden">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="flex gap-4 border-b border-[#f2f2f2] px-4 py-3 last:border-0">
+            <div key={i} className="flex gap-4 border-b border-line px-4 py-3 last:border-0">
               {columns.map((c) => (
                 <Skeleton key={c.key} className="h-4 flex-1" />
               ))}
@@ -66,7 +66,7 @@ export default function DataTable<T>({
         {/* Mobile skeleton */}
         <div className="md:hidden space-y-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-card border border-[#ececec] bg-white p-3 shadow-card">
+            <div key={i} className="rounded-card border border-rsl-border bg-surface p-3 shadow-card">
               <Skeleton className="h-4 w-1/2 mb-2" />
               <Skeleton className="h-3 w-3/4 mb-1" />
               <Skeleton className="h-3 w-1/3" />
@@ -84,10 +84,10 @@ export default function DataTable<T>({
   return (
     <div>
       {/* Desktop / tablet: real table, horizontal scroll if needed */}
-      <div className="hidden md:block rounded-card border border-rsl-border bg-white overflow-x-auto">
+      <div className="hidden md:block rounded-card border border-rsl-border bg-surface overflow-x-auto">
         <table className="w-full min-w-[640px] border-collapse">
           <thead>
-            <tr className="border-b-2 border-[#eeeeee]">
+            <tr className="border-b-2 border-line">
               {columns.map((c) => (
                 <th
                   key={c.key}
@@ -106,12 +106,12 @@ export default function DataTable<T>({
               <tr
                 key={rowKey(row)}
                 onClick={() => onRowClick?.(row)}
-                className={`border-b border-[#f2f2f2] last:border-0 ${
-                  onRowClick ? "cursor-pointer hover:bg-[#fafafa]" : ""
+                className={`border-b border-line last:border-0 ${
+                  onRowClick ? "cursor-pointer hover:bg-rsl-bg-soft" : ""
                 }`}
               >
                 {columns.map((c) => (
-                  <td key={c.key} className={`px-4 py-3 text-body text-rsl-black ${c.align === "right" ? "text-right" : ""} ${c.className ?? ""}`}>
+                  <td key={c.key} className={`px-4 py-3 text-body text-ink ${c.align === "right" ? "text-right" : ""} ${c.className ?? ""}`}>
                     {c.render(row)}
                   </td>
                 ))}
@@ -132,25 +132,25 @@ export default function DataTable<T>({
           <div
             key={rowKey(row)}
             onClick={() => onRowClick?.(row)}
-            className={`rounded-card border border-[#ececec] bg-white p-3 shadow-card ${
-              onRowClick ? "cursor-pointer active:bg-[#fafafa]" : ""
+            className={`rounded-card border border-rsl-border bg-surface p-3 shadow-card ${
+              onRowClick ? "cursor-pointer active:bg-rsl-bg-soft" : ""
             }`}
           >
             <div className="flex items-start justify-between gap-2 mb-2">
-              <div className="text-body-md font-bold text-rsl-black">{primaryCol.render(row)}</div>
+              <div className="text-body-md font-bold text-ink">{primaryCol.render(row)}</div>
               {cardBadge?.(row)}
             </div>
             <div className="space-y-1">
               {secondaryCols.map((c) => (
                 <div key={c.key} className="flex items-center justify-between gap-3 text-meta">
                   <span className="text-rsl-muted uppercase tracking-wide">{c.header}</span>
-                  <span className="text-rsl-black text-right">{c.render(row)}</span>
+                  <span className="text-ink text-right">{c.render(row)}</span>
                 </div>
               ))}
             </div>
             {actions && (
               <div
-                className="mt-3 flex items-center justify-end gap-1 border-t border-[#f2f2f2] pt-2"
+                className="mt-3 flex items-center justify-end gap-1 border-t border-line pt-2"
                 onClick={(e) => e.stopPropagation()}
               >
                 {actions(row)}

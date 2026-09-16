@@ -92,7 +92,7 @@ export default function ProductsTab() {
       key: "taxPercent",
       header: "Tax %",
       align: "right",
-      render: (r) => <Badge className="bg-rsl-bg text-rsl-black">{num(r.taxPercent)}%</Badge>,
+      render: (r) => <Badge className="bg-rsl-bg text-ink">{num(r.taxPercent)}%</Badge>,
     },
   ];
 
@@ -110,7 +110,7 @@ export default function ProductsTab() {
         pageSize={data?.pageSize ?? 10}
         total={data?.total ?? 0}
         onPageChange={setPage}
-        cardBadge={(r) => <Badge className="bg-rsl-bg text-rsl-black">{num(r.taxPercent)}%</Badge>}
+        cardBadge={(r) => <Badge className="bg-rsl-bg text-ink">{num(r.taxPercent)}%</Badge>}
         actions={(r) => (
           <RowActions
             onView={() => setViewing(r)}

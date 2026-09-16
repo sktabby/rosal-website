@@ -82,7 +82,7 @@ export default function DispatcherOrderDetailPage() {
       <BackButton fallbackHref="/dispatcher/queue" />
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-page-title-lg text-rsl-black">{order.orderNumber}</h2>
+          <h2 className="text-page-title-lg text-ink">{order.orderNumber}</h2>
           <p className="text-meta text-rsl-muted">{client ? fullName(client) : "—"}</p>
         </div>
         <StatusChip status={status} />
@@ -91,17 +91,17 @@ export default function DispatcherOrderDetailPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-4">
           {/* Field order per v1.1: Client (name only), Ship To, Line Items, Transport at bottom */}
-          <div className="rounded-card border border-rsl-border bg-white p-4">
+          <div className="rounded-card border border-rsl-border bg-surface p-4">
             <Row label="Client" value={client ? fullName(client) : "—"} />
             <Row label="Ship To" value={order.proformaInvoice?.shipToAddress ?? "—"} />
           </div>
 
-          <div className="rounded-card border border-rsl-border bg-white p-4">
+          <div className="rounded-card border border-rsl-border bg-surface p-4">
             <p className="mb-3 text-section-label uppercase text-rsl-muted">Line Items</p>
             <div className="hidden sm:block">
               <table className="w-full text-body">
                 <thead>
-                  <tr className="text-left text-[10px] uppercase text-rsl-muted border-b border-[#eee]">
+                  <tr className="text-left text-[10px] uppercase text-rsl-muted border-b border-line">
                     <th className="pb-2">Product</th>
                     <th className="pb-2">Brand</th>
                     <th className="pb-2 text-right">Qty</th>
@@ -109,7 +109,7 @@ export default function DispatcherOrderDetailPage() {
                 </thead>
                 <tbody>
                   {lineItems.map((li, i) => (
-                    <tr key={i} className="border-b border-[#f2f2f2] last:border-0">
+                    <tr key={i} className="border-b border-line last:border-0">
                       <td className="py-2">{li.productName ?? li.productId}</td>
                       <td className="py-2">{li.brand}</td>
                       <td className="py-2 text-right">{num(li.qty)}</td>
@@ -131,7 +131,7 @@ export default function DispatcherOrderDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-card border border-rsl-border bg-white p-4">
+          <div className="rounded-card border border-rsl-border bg-surface p-4">
             <Row label="Transport" value={order.proformaInvoice?.transport?.name ?? "—"} />
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function DispatcherOrderDetailPage() {
 
       {/* Sticky bottom action bar — mobile/tablet, so Accept/Reject/Complete
           is never lost off-screen while scrolling line items. */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-rsl-border bg-white p-3 lg:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-rsl-border bg-surface p-3 lg:hidden">
         <ActionButtons
           status={status}
           busy={busy}
@@ -168,9 +168,9 @@ export default function DispatcherOrderDetailPage() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-[#f2f2f2] py-2 last:border-0">
+    <div className="flex items-start justify-between gap-4 border-b border-line py-2 last:border-0">
       <span className="text-field-label uppercase text-rsl-muted">{label}</span>
-      <span className="text-right text-body text-rsl-black">{value}</span>
+      <span className="text-right text-body text-ink">{value}</span>
     </div>
   );
 }

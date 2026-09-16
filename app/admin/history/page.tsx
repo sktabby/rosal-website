@@ -257,7 +257,7 @@ function ActivityRow({ entry, onOpen }: { entry: AuditLogEntry; onOpen: () => vo
       <Avatar initials={actor.initials} />
 
       <div className="min-w-0 flex-1">
-        <p className="text-body-md leading-snug text-rsl-black">
+        <p className="text-body-md leading-snug text-ink">
           <span className="font-bold">{actor.name}</span>{" "}
           <span className="text-rsl-muted">
             {action.verb} {entity.article}
@@ -292,9 +292,9 @@ function ActivityRow({ entry, onOpen }: { entry: AuditLogEntry; onOpen: () => vo
 
 function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-[#f2f2f2] py-2.5 last:border-0">
+    <div className="flex items-start justify-between gap-4 border-b border-line py-2.5 last:border-0">
       <span className="shrink-0 text-body text-rsl-muted">{label}</span>
-      <span className="min-w-0 break-words text-right text-body text-rsl-black">{children}</span>
+      <span className="min-w-0 break-words text-right text-body text-ink">{children}</span>
     </div>
   );
 }
@@ -318,7 +318,7 @@ function ActivityDetails({ entry }: { entry: AuditLogEntry }) {
         <div className="mb-2 flex items-center gap-3">
           <Avatar initials={actor.initials} size="lg" />
           <div className="min-w-0">
-            <p className="truncate text-[15px] font-bold text-rsl-black">{actor.name}</p>
+            <p className="truncate text-[15px] font-bold text-ink">{actor.name}</p>
             <p className="text-meta text-rsl-muted">{actor.role ?? "—"}</p>
           </div>
         </div>
@@ -426,8 +426,8 @@ export default function AdminHistoryPage() {
             className={cn(
               "min-h-[34px] shrink-0 rounded-full px-3.5 text-[11.5px] font-bold transition-colors",
               entityType === f.value
-                ? "bg-rsl-black text-white"
-                : "border border-rsl-border bg-white text-rsl-black hover:border-rsl-black/40"
+                ? "bg-ink text-surface"
+                : "border border-rsl-border bg-surface text-ink hover:border-ink/40"
             )}
           >
             {f.label}
@@ -436,12 +436,12 @@ export default function AdminHistoryPage() {
       </div>
 
       {isError ? (
-        <div className="rounded-card border border-dashed border-rsl-border bg-white p-8 text-center">
-          <p className="text-body-md font-bold text-rsl-black">Activity history couldn&apos;t be loaded</p>
+        <div className="rounded-card border border-dashed border-rsl-border bg-surface p-8 text-center">
+          <p className="text-body-md font-bold text-ink">Activity history couldn&apos;t be loaded</p>
           <p className="mt-1 text-meta text-rsl-muted">Check your connection and refresh the page.</p>
         </div>
       ) : isLoading ? (
-        <div className="space-y-2 rounded-card border border-rsl-border bg-white p-4 shadow-card">
+        <div className="space-y-2 rounded-card border border-rsl-border bg-surface p-4 shadow-card">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="flex items-center gap-3 py-1.5">
               <Skeleton className="h-10 w-10 rounded-full" />
@@ -462,7 +462,7 @@ export default function AdminHistoryPage() {
           {groups.map((group) => (
             <section key={group.label}>
               <h3 className="mb-2 text-section-label uppercase text-rsl-muted">{group.label}</h3>
-              <div className="divide-y divide-[#f2f2f2] overflow-hidden rounded-card border border-rsl-border bg-white shadow-card">
+              <div className="divide-y divide-line overflow-hidden rounded-card border border-rsl-border bg-surface shadow-card">
                 {group.entries.map((entry) => (
                   <ActivityRow key={entry.id} entry={entry} onOpen={() => setSelected(entry)} />
                 ))}

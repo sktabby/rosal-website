@@ -85,9 +85,9 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="flex flex-1 items-center justify-center bg-white px-5 py-10 sm:px-8">
+      <div className="flex flex-1 items-center justify-center bg-surface px-5 py-10 sm:px-8">
         <div className="w-full max-w-[360px]">
-          <h1 className="text-[20px] font-bold text-rsl-black">Login Here!</h1>
+          <h1 className="text-[20px] font-bold text-ink">Login Here!</h1>
           <p className="mt-1 text-body-md text-rsl-muted">Sign in with your Employee Code</p>
 
           <form onSubmit={handleSubmit} className="mt-6">

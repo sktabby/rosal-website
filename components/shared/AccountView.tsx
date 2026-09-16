@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Building2, KeyRound, LogOut, Pencil } from "lucide-react";
+import { Building2, KeyRound, LogOut, Palette, Pencil } from "lucide-react";
+import { ThemeSegmented } from "@/components/shared/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -36,7 +37,7 @@ function Panel({
   className?: string;
 }) {
   return (
-    <section className={cn("rounded-card border border-rsl-border bg-white p-4 shadow-card lg:p-5", className)}>
+    <section className={cn("rounded-card border border-rsl-border bg-surface p-4 shadow-card lg:p-5", className)}>
       <div className="mb-3 flex items-center gap-1.5">
         {Icon && <Icon className="h-3.5 w-3.5 text-rsl-muted" />}
         <h3 className="text-section-label uppercase text-rsl-muted">{title}</h3>
@@ -48,9 +49,9 @@ function Panel({
 
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-[#f2f2f2] py-2.5 last:border-0 last:pb-0">
+    <div className="flex items-start justify-between gap-4 border-b border-line py-2.5 last:border-0 last:pb-0">
       <span className="shrink-0 text-body text-rsl-muted">{label}</span>
-      <span className="text-right text-body text-rsl-black">{value}</span>
+      <span className="text-right text-body text-ink">{value}</span>
     </div>
   );
 }
@@ -125,14 +126,14 @@ export default function AccountView({
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-4">
       {/* Identity */}
-      <section className="overflow-hidden rounded-card border border-rsl-border bg-white shadow-card">
+      <section className="overflow-hidden rounded-card border border-rsl-border bg-surface shadow-card">
         <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center lg:p-5">
           <div className="flex min-w-0 flex-1 items-center gap-3.5">
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-rsl-amber to-rsl-orange text-[20px] font-bold text-rsl-black">
               {initials(currentUser)}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-[16px] font-bold text-rsl-black">{fullName(currentUser)}</p>
+              <p className="truncate text-[16px] font-bold text-ink">{fullName(currentUser)}</p>
               <p className="mt-0.5 truncate text-meta text-rsl-muted">
                 {roleIdLabel} · {currentUser.employeeCode}
               </p>
@@ -219,22 +220,29 @@ export default function AccountView({
         </Panel>
 
         <Panel title="Notifications">
-          <div className="flex items-start justify-between gap-4 border-b border-[#f2f2f2] py-2.5">
+          <div className="flex items-start justify-between gap-4 border-b border-line py-2.5">
             <div className="min-w-0">
-              <p className="text-body text-rsl-black">Push Notifications</p>
+              <p className="text-body text-ink">Push Notifications</p>
               <p className="mt-0.5 text-meta text-rsl-muted">Order and bill activity on your device.</p>
             </div>
             <Switch checked={push} onCheckedChange={togglePush} />
           </div>
           <div className="flex items-start justify-between gap-4 py-2.5">
             <div className="min-w-0">
-              <p className="text-body text-rsl-black">Email Notifications</p>
+              <p className="text-body text-ink">Email Notifications</p>
               <p className="mt-0.5 text-meta text-rsl-muted">The same updates, sent to your inbox.</p>
             </div>
             <Switch checked={email} onCheckedChange={toggleEmail} />
           </div>
         </Panel>
       </div>
+
+      <Panel title="Appearance" icon={Palette}>
+        <p className="mb-3 text-meta text-rsl-muted">
+          System follows your device&apos;s light or dark setting automatically.
+        </p>
+        <ThemeSegmented />
+      </Panel>
 
       <Panel title="Company" icon={Building2}>
         <DetailRow label="Name" value={company?.name ?? "—"} />

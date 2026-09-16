@@ -36,7 +36,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed z-50 bg-white shadow-sheet outline-none",
+        "fixed z-50 bg-surface shadow-sheet outline-none",
         // mobile / tablet: bottom sheet
         "inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto rounded-t-sheet animate-sheet-up",
         "px-5 pt-3 pb-6",
@@ -66,7 +66,7 @@ function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
 function DialogTitle({ className, ...props }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      className={cn("text-page-title-lg text-rsl-black", className)}
+      className={cn("text-page-title-lg text-ink", className)}
       {...props}
     />
   );

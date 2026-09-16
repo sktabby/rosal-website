@@ -29,7 +29,7 @@ export default function SearchBar({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-field border-[1.4px] border-rsl-border bg-white py-[11px] pl-9 pr-3 text-body text-rsl-black placeholder:text-[#aaaaaa] focus:border-rsl-red focus:outline-none"
+        className="w-full rounded-field border-[1.4px] border-rsl-border bg-surface py-[11px] pl-9 pr-3 text-body text-ink placeholder:text-placeholder focus:border-rsl-red focus:outline-none"
       />
     </div>
   );

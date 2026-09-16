@@ -16,8 +16,8 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex w-full min-h-[44px] items-center justify-between rounded-field border-[1.4px] bg-white px-3 py-[11px] text-body text-rsl-black",
-      "focus:border-rsl-red focus:outline-none data-[placeholder]:text-[#aaaaaa]",
+      "flex w-full min-h-[44px] items-center justify-between rounded-field border-[1.4px] bg-surface px-3 py-[11px] text-body text-ink",
+      "focus:border-rsl-red focus:outline-none data-[placeholder]:text-placeholder",
       "disabled:bg-rsl-bg disabled:text-rsl-muted disabled:border-transparent",
       error ? "border-rsl-red" : "border-rsl-border",
       className
@@ -41,7 +41,7 @@ const SelectContent = React.forwardRef<
       ref={ref}
       position={position}
       className={cn(
-        "z-50 max-h-72 min-w-[8rem] overflow-hidden rounded-field border border-rsl-border bg-white shadow-pop",
+        "z-50 max-h-72 min-w-[8rem] overflow-hidden rounded-field border border-rsl-border bg-surface shadow-pop",
         position === "popper" && "w-[var(--radix-select-trigger-width)]",
         className
       )}

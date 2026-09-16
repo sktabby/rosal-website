@@ -4,7 +4,8 @@ import NextTopLoader from "nextjs-toploader";
 import QueryProvider from "@/providers/QueryProvider";
 import SessionProvider from "@/providers/SessionProvider";
 import SocketProvider from "@/providers/SocketProvider";
-import { Toaster } from "sonner";
+import ThemeProvider, { THEME_INIT_SCRIPT } from "@/providers/ThemeProvider";
+import { ThemedToaster } from "@/components/shared/ThemeToggle";
 
 export const metadata: Metadata = {
   title: "Rosal Safety — Order Management",
@@ -28,24 +29,22 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    // The init script adds `dark` to <html> before React hydrates, so the
+    // server-rendered class list legitimately differs from the client's.
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="font-sans antialiased">
         <NextTopLoader color="#D42027" height={3} showSpinner={false} />
-        <QueryProvider>
-          <SessionProvider>
-            <SocketProvider>{children}</SocketProvider>
-          </SessionProvider>
-        </QueryProvider>
-        <Toaster
-          position="bottom-right"
-          toastOptions={{
-            className: "text-body",
-            style: {
-              borderRadius: "9px",
-              fontSize: "12.5px",
-            },
-          }}
-        />
+        <ThemeProvider>
+          <QueryProvider>
+            <SessionProvider>
+              <SocketProvider>{children}</SocketProvider>
+            </SessionProvider>
+          </QueryProvider>
+          <ThemedToaster />
+        </ThemeProvider>
       </body>
     </html>
   );

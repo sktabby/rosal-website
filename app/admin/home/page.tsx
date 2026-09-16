@@ -26,7 +26,7 @@ const ACTIONS = [
     label: "Create User",
     description: "Add a portal user and assign their role",
     icon: UserPlus,
-    tile: "bg-rsl-black text-white",
+    tile: "bg-ink text-surface",
   },
   {
     href: "/admin/clients/new",
@@ -54,7 +54,7 @@ const ACTIONS = [
     label: "Factory Unit",
     description: "Set up a dispatch unit and its address",
     icon: Factory,
-    tile: "bg-rsl-black text-white",
+    tile: "bg-ink text-surface",
   },
 ];
 
@@ -71,8 +71,8 @@ function FilterChip({ label, active, onClick }: { label: string; active: boolean
       className={cn(
         "min-h-[32px] shrink-0 rounded-full px-3 text-[11px] font-bold transition-colors",
         active
-          ? "bg-rsl-black text-white"
-          : "border border-rsl-border bg-white text-rsl-black hover:border-rsl-black/40"
+          ? "bg-ink text-surface"
+          : "border border-rsl-border bg-surface text-ink hover:border-ink/40"
       )}
     >
       {label}
@@ -149,7 +149,7 @@ export default function AdminHomePage() {
             <Link
               key={a.href}
               href={a.href}
-              className="group flex items-center gap-3.5 rounded-card border border-rsl-border bg-white p-3.5 shadow-card transition-all hover:-translate-y-0.5 hover:border-rsl-red/40 hover:shadow-pop focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rsl-red"
+              className="group flex items-center gap-3.5 rounded-card border border-rsl-border bg-surface p-3.5 shadow-card transition-all hover:-translate-y-0.5 hover:border-rsl-red/40 hover:shadow-pop focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rsl-red"
             >
               <span
                 className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] ${a.tile}`}
@@ -157,7 +157,7 @@ export default function AdminHomePage() {
                 <a.icon className="h-5 w-5" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-body-md font-bold text-rsl-black">
+                <span className="block truncate text-body-md font-bold text-ink">
                   {a.label}
                 </span>
                 <span className="mt-0.5 block text-meta leading-snug text-rsl-muted">
@@ -173,7 +173,7 @@ export default function AdminHomePage() {
       {/* Global search */}
       <section>
         <h3 className="mb-2.5 text-section-label uppercase text-rsl-muted">Global Search</h3>
-        <div className="rounded-card border border-rsl-border bg-white p-3.5 shadow-card sm:p-4">
+        <div className="rounded-card border border-rsl-border bg-surface p-3.5 shadow-card sm:p-4">
           <SearchBar
             value={q}
             onChange={(value) => {

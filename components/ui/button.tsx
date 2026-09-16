@@ -9,11 +9,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         red: "bg-rsl-red text-white hover:bg-rsl-red-dark",
-        black: "bg-rsl-black text-white hover:bg-black",
+        black: "bg-ink text-surface hover:bg-black",
         amber: "bg-rsl-amber text-rsl-black hover:brightness-95",
-        outline: "bg-white text-rsl-black border-[1.6px] border-rsl-black hover:bg-rsl-bg",
-        "outline-red": "bg-white text-rsl-red border-[1.6px] border-rsl-red hover:bg-red-50",
-        ghost: "bg-transparent text-rsl-black hover:bg-rsl-bg",
+        outline: "bg-surface text-ink border-[1.6px] border-ink hover:bg-rsl-bg",
+        "outline-red": "bg-surface text-rsl-red border-[1.6px] border-rsl-red hover:bg-danger-bg",
+        ghost: "bg-transparent text-ink hover:bg-rsl-bg",
         link: "bg-transparent text-rsl-red underline-offset-4 hover:underline p-0",
       },
       size: {

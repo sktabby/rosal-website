@@ -41,7 +41,7 @@ export default function AccountsHistoryPage() {
               href={r.externalFileUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-rsl-black hover:underline"
+              className="inline-flex items-center gap-1 text-ink hover:underline"
             >
               <ExternalLink className="h-3.5 w-3.5" /> External
             </a>

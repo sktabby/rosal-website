@@ -38,8 +38,8 @@ export default function ManagementPage() {
             className={cn(
               "flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-btn transition-colors",
               tab === t.key
-                ? "bg-rsl-black text-white"
-                : "border border-rsl-border bg-white text-rsl-black hover:border-rsl-black/40"
+                ? "bg-ink text-surface"
+                : "border border-rsl-border bg-surface text-ink hover:border-ink/40"
             )}
           >
             <t.icon className="h-4 w-4" />

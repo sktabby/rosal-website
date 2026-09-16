@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Check } from "lucide-react";
@@ -13,6 +13,7 @@ import { checkEmployeeCode, createUser } from "@/lib/api/users";
 import { ApiError } from "@/lib/api/http";
 import { UserRole } from "@/lib/enums";
 import { toast } from "sonner";
+import { useTheme } from "@/providers/ThemeProvider";
 
 const ROLE_OPTIONS = [
   { value: UserRole.SELLER, label: "Seller" },
@@ -27,6 +28,7 @@ const EMAIL_ERROR = "Enter a valid email address (e.g. name@company.com).";
 
 export default function UserCreationPage() {
   const router = useRouter();
+  const { resolvedTheme } = useTheme();
   const [form, setForm] = useState({
     role: "" as string,
     employeeCode: "",
@@ -43,6 +45,11 @@ export default function UserCreationPage() {
   const [loading, setLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
+
+  // A theme switch remounts the widget unticked; drop the token to match.
+  useEffect(() => {
+    setCaptchaToken(null);
+  }, [resolvedTheme]);
 
   /**
    * reCAPTCHA tokens are single-use and expire after ~2 minutes, so the widget
@@ -143,7 +150,7 @@ export default function UserCreationPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-5 rounded-card border border-rsl-border bg-white p-4 shadow-card sm:p-5 lg:p-6"
+        className="flex flex-col gap-5 rounded-card border border-rsl-border bg-surface p-4 shadow-card sm:p-5 lg:p-6"
       >
         <FormSection title="Role & Access" description="Determines which portal this person signs in to.">
           <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
@@ -166,10 +173,10 @@ export default function UserCreationPage() {
             </FormField>
           </div>
 
-          <div className="rounded-field border border-rsl-amber/40 bg-[#fdf3e0] px-3.5 py-3">
-            <p className="text-section-label uppercase text-[#8a5a00]">Generated ID preview</p>
-            <p className="mt-1 text-body-md font-bold text-[#8a5a00]">{idPreview}</p>
-            <p className="mt-1 text-meta leading-snug text-[#8a5a00]/80">
+          <div className="rounded-field border border-rsl-amber/40 bg-notice-bg px-3.5 py-3">
+            <p className="text-section-label uppercase text-notice-fg">Generated ID preview</p>
+            <p className="mt-1 text-body-md font-bold text-notice-fg">{idPreview}</p>
+            <p className="mt-1 text-meta leading-snug text-notice-fg/80">
               First name + last 5 digits of the employee code. Stored as the primary identifier.
             </p>
           </div>
@@ -264,6 +271,10 @@ export default function UserCreationPage() {
             {RECAPTCHA_SITE_KEY ? (
               <div className="origin-top-left scale-[0.85] sm:scale-100">
                 <ReCAPTCHA
+                  // The widget reads `theme` only on mount, so remount on change.
+                  // Remounting also discards any token, which the user re-ticks.
+                  key={resolvedTheme}
+                  theme={resolvedTheme}
                   ref={recaptchaRef}
                   sitekey={RECAPTCHA_SITE_KEY}
                   onChange={(token) => {
