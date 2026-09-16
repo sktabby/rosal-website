@@ -17,6 +17,7 @@ import SearchBar from "@/components/shared/SearchBar";
 import DataTable, { type DataTableColumn } from "@/components/shared/DataTable";
 import { RosalMark } from "@/components/shared/Logo";
 import { useSession } from "@/providers/SessionProvider";
+import { cn } from "@/lib/utils";
 import { globalSearch, type SearchResult } from "@/lib/api/search";
 
 const ACTIONS = [
@@ -62,6 +63,23 @@ const SHORTCUTS = [
   { href: "/admin/history", label: "History", icon: History },
 ];
 
+function FilterChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "min-h-[32px] shrink-0 rounded-full px-3 text-[11px] font-bold transition-colors",
+        active
+          ? "bg-rsl-black text-white"
+          : "border border-rsl-border bg-white text-rsl-black hover:border-rsl-black/40"
+      )}
+    >
+      {label}
+    </button>
+  );
+}
+
 function greeting() {
   const h = new Date().getHours();
   if (h < 12) return "Good morning";
@@ -72,6 +90,7 @@ function greeting() {
 export default function AdminHomePage() {
   const [q, setQ] = useState("");
   const { user } = useSession();
+  const [entityFilter, setEntityFilter] = useState<string>("all");
 
   const { data, isFetching } = useQuery({
     queryKey: ["search", q],
@@ -80,6 +99,9 @@ export default function AdminHomePage() {
   });
 
   const results: SearchResult[] = Array.isArray(data) ? data : data?.items ?? [];
+  const entityTypes = Array.from(new Set(results.map((r) => r.entityType)));
+  const filteredResults =
+    entityFilter === "all" ? results : results.filter((r) => r.entityType === entityFilter);
 
   const columns: DataTableColumn<SearchResult>[] = [
     { key: "label", header: "Name", render: (r) => r.label, primary: true },
@@ -154,23 +176,45 @@ export default function AdminHomePage() {
         <div className="rounded-card border border-rsl-border bg-white p-3.5 shadow-card sm:p-4">
           <SearchBar
             value={q}
-            onChange={setQ}
+            onChange={(value) => {
+              setQ(value);
+              setEntityFilter("all");
+            }}
             placeholder="Search users, clients, products, transport, factory units..."
           />
           <div className="mt-3.5">
             {q.length > 1 ? (
-              <DataTable
-                columns={columns}
-                rows={results}
-                rowKey={(r) => `${r.entityType}-${r.id}`}
-                loading={isFetching}
-                emptyTitle="No matches"
-                emptyDescription="Try a different search term."
-                page={1}
-                pageSize={results.length || 1}
-                total={results.length}
-                onPageChange={() => {}}
-              />
+              <>
+                {entityTypes.length > 1 && (
+                  <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
+                    <FilterChip
+                      label={`All (${results.length})`}
+                      active={entityFilter === "all"}
+                      onClick={() => setEntityFilter("all")}
+                    />
+                    {entityTypes.map((type) => (
+                      <FilterChip
+                        key={type}
+                        label={`${type} (${results.filter((r) => r.entityType === type).length})`}
+                        active={entityFilter === type}
+                        onClick={() => setEntityFilter(type)}
+                      />
+                    ))}
+                  </div>
+                )}
+                <DataTable
+                  columns={columns}
+                  rows={filteredResults}
+                  rowKey={(r) => `${r.entityType}-${r.id}`}
+                  loading={isFetching}
+                  emptyTitle="No matches"
+                  emptyDescription="Try a different search term."
+                  page={1}
+                  pageSize={filteredResults.length || 1}
+                  total={filteredResults.length}
+                  onPageChange={() => {}}
+                />
+              </>
             ) : (
               <p className="py-3 text-meta text-rsl-muted">
                 Start typing above to search across users, clients, products, transport and

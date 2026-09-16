@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import AppShell from "@/components/shared/AppShell";
 import { ADMIN_NAV, ROLE_LABEL, resolvePageTitle } from "@/lib/nav";
 import { useSession } from "@/providers/SessionProvider";
+import { getCurrentFinancialYear } from "@/lib/financialYear";
 import { Loader2 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -31,7 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       navItems={ADMIN_NAV}
       roleLabel={ROLE_LABEL.ADMIN}
       pageTitle={resolvePageTitle(pathname, ADMIN_NAV)}
-      contextPill="RSPL / FY 26-27"
+      contextPill={`RSPL / ${getCurrentFinancialYear()}`}
     >
       {children}
     </AppShell>

@@ -54,17 +54,17 @@ export default function TransportCreationPage() {
   ];
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex max-w-3xl flex-col gap-6">
       <div>
         <PageHeader
-          title="Transport Creation"
+          title="Register a Transport"
           description="Transporters become selectable on every dispatch. Added options appear below immediately."
           backHref="/admin/home"
         />
 
         <form
           onSubmit={handleSubmit}
-          className="flex max-w-3xl flex-col gap-5 rounded-card border border-rsl-border bg-white p-4 shadow-card sm:p-5 lg:p-6"
+          className="flex flex-col gap-5 rounded-card border border-rsl-border bg-white p-4 shadow-card sm:p-5 lg:p-6"
         >
           <FormSection title="Add Transport Option">
             <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">

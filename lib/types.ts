@@ -271,12 +271,25 @@ export interface Invoice {
   bill?: Bill;
 }
 
+// Matches OrderEvent + its `actor` include in the backend's order-events
+// service. The actor select only carries name and role today; the identity
+// fields are optional so a backend that adds them is picked up with no
+// extra lookup.
 export interface AuditLogEntry {
+  id: string;
   entityType: string;
   entityId: string;
   action: string;
   actorId: string;
-  actorName?: string;
+  actor?: {
+    firstName: string;
+    lastName: string;
+    role: UserRole;
+    employeeCode?: string;
+    email?: string;
+    phone?: string;
+  } | null;
+  metadata?: Record<string, unknown> | null;
   timestamp: string;
 }
 

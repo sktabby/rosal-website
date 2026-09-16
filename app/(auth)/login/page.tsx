@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { RosalLockup } from "@/components/shared/Logo";
+import { RosalLockup, RosalMark } from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,19 +55,30 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
-      <div className="relative flex shrink-0 flex-col justify-between overflow-hidden bg-gradient-to-br from-rsl-black via-[#3a0c0e] to-rsl-red lg:w-[460px]">
-        <div className="relative flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-          <RosalLockup width={260} className="hidden lg:block" />
-          <RosalLockup width={132} className="lg:hidden" />
+      <div className="relative shrink-0 overflow-hidden bg-gradient-to-br from-rsl-black via-[#3a0c0e] to-rsl-red lg:flex lg:w-[460px] lg:flex-col lg:justify-between">
+        {/* Mobile / tablet: single-row header, logo left, company info right */}
+        <div className="flex items-center gap-3 px-4 py-3 lg:hidden">
+          <RosalMark size={44} className="shrink-0" />
+          <div className="min-w-0 flex-1 text-right">
+            <p className="truncate text-[11px] font-bold uppercase tracking-wide text-white">
+              {companyName}
+            </p>
+            <p className="text-[9.5px] leading-tight text-white/70">{companyAddress}</p>
+            <p className="text-[9.5px] leading-tight text-white/50">
+              GSTIN: <span className="text-white/80">{companyGstin}</span>
+            </p>
+          </div>
         </div>
 
-        <div className="relative border-t border-white/10 bg-black/15 px-5 py-4 backdrop-blur-sm lg:px-10 lg:py-6">
+        {/* Desktop: taller stacked layout; the lockup already carries the wordmark */}
+        <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:items-center lg:justify-center lg:px-6">
+          <RosalLockup width={260} />
+        </div>
+        <div className="hidden border-t border-white/10 bg-black/15 px-10 py-6 backdrop-blur-sm lg:block">
           <p className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-white/50">
             {companyName}
           </p>
-          <p className="mt-1.5 line-clamp-2 text-[11px] leading-relaxed text-white/70 lg:line-clamp-none">
-            {companyAddress}
-          </p>
+          <p className="mt-1.5 text-[11px] leading-relaxed text-white/70">{companyAddress}</p>
           <p className="mt-1.5 text-[11px] text-white/50">
             GSTIN: <span className="text-white/80">{companyGstin}</span>
           </p>
@@ -76,7 +87,7 @@ export default function LoginPage() {
 
       <div className="flex flex-1 items-center justify-center bg-white px-5 py-10 sm:px-8">
         <div className="w-full max-w-[360px]">
-          <h1 className="text-[20px] font-bold text-rsl-black">Portal Login</h1>
+          <h1 className="text-[20px] font-bold text-rsl-black">Login Here!</h1>
           <p className="mt-1 text-body-md text-rsl-muted">Sign in with your Employee Code</p>
 
           <form onSubmit={handleSubmit} className="mt-6">

@@ -69,7 +69,7 @@ export default function CompanySettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-2xl space-y-3">
+      <div className="mx-auto max-w-2xl space-y-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <Skeleton key={i} className="h-11 w-full" />
         ))}
@@ -78,15 +78,15 @@ export default function CompanySettingsPage() {
   }
 
   return (
-    <div>
-      <PageHeader title="Company Settings" backHref="/admin/home" />
+    <div className="mx-auto max-w-2xl">
+      <PageHeader title="Company Settings" backHref="/admin/account" />
 
       <div className="mb-4 flex gap-2 rounded-field bg-[#fbe6e6] px-3 py-2.5 text-[11.5px] text-[#a01818]">
         <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
         <span>This information appears on every PI, Bill, and Invoice across the system. Changes apply immediately to new documents.</span>
       </div>
 
-      <form onSubmit={handleSubmit} className="max-w-2xl rounded-card border border-rsl-border bg-white p-4 lg:p-6">
+      <form onSubmit={handleSubmit} className="rounded-card border border-rsl-border bg-white p-4 lg:p-6">
         <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
           {FIELD_DEFS.map((f) =>
             f.textarea ? (

@@ -3,9 +3,9 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import ReCAPTCHA from "react-google-recaptcha";
-import { Eye, EyeOff, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input, type InputProps } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { FormField, FormSection } from "@/components/shared/FormField";
 import PageHeader from "@/components/shared/PageHeader";
 import SimpleSelect from "@/components/shared/SimpleSelect";
@@ -22,22 +22,8 @@ const ROLE_OPTIONS = [
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
-function PasswordInput(props: InputProps) {
-  const [visible, setVisible] = useState(false);
-  return (
-    <div className="relative">
-      <Input {...props} type={visible ? "text" : "password"} className="pr-10" />
-      <button
-        type="button"
-        onClick={() => setVisible((v) => !v)}
-        aria-label={visible ? "Hide password" : "Show password"}
-        className="absolute right-0 top-0 flex h-full w-10 items-center justify-center text-rsl-muted transition-colors hover:text-rsl-black"
-      >
-        {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-      </button>
-    </div>
-  );
-}
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+const EMAIL_ERROR = "Enter a valid email address (e.g. name@company.com).";
 
 export default function UserCreationPage() {
   const router = useRouter();
@@ -90,6 +76,12 @@ export default function UserCreationPage() {
     }
   }
 
+  function handleEmailBlur() {
+    if (form.email && !EMAIL_REGEX.test(form.email)) {
+      setErrors((e) => ({ ...e, email: EMAIL_ERROR }));
+    }
+  }
+
   function validate(): boolean {
     const next: Record<string, string> = {};
     if (!form.role) next.role = "Select a role.";
@@ -97,7 +89,7 @@ export default function UserCreationPage() {
     if (!form.firstName) next.firstName = "Required.";
     if (!form.lastName) next.lastName = "Required.";
     if (!form.phone) next.phone = "Required.";
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) next.email = "Enter a valid email.";
+    if (!EMAIL_REGEX.test(form.email)) next.email = EMAIL_ERROR;
     if (form.password.length < 8) next.password = "Minimum 8 characters.";
     if (form.confirmPassword !== form.password) next.confirmPassword = "Passwords do not match.";
     if (!captchaToken) next.captcha = "Complete the captcha to continue.";
@@ -142,10 +134,10 @@ export default function UserCreationPage() {
       : "Must be unique — checked against the directory.";
 
   return (
-    <div className="max-w-3xl">
+    <div className="mx-auto max-w-3xl">
       <PageHeader
-        title="Create User"
-        description="Only Admin can create Seller, Dispatcher, or Accounts accounts."
+        title="Create New User"
+        description="New user will receive their credentials on email!"
         backHref="/admin/home"
       />
 
@@ -219,6 +211,7 @@ export default function UserCreationPage() {
                 placeholder="name@rosalsafety.com"
                 value={form.email}
                 onChange={(e) => set("email", e.target.value)}
+                onBlur={handleEmailBlur}
                 error={!!errors.email}
                 autoComplete="email"
               />
@@ -234,7 +227,8 @@ export default function UserCreationPage() {
               error={errors.password}
               hint="Minimum 8 characters."
             >
-              <PasswordInput
+              <Input
+                type="password"
                 value={form.password}
                 onChange={(e) => set("password", e.target.value)}
                 error={!!errors.password}
@@ -242,7 +236,8 @@ export default function UserCreationPage() {
               />
             </FormField>
             <FormField label="Confirm Password" required error={errors.confirmPassword}>
-              <PasswordInput
+              <Input
+                type="password"
                 value={form.confirmPassword}
                 onChange={(e) => set("confirmPassword", e.target.value)}
                 error={!!errors.confirmPassword}

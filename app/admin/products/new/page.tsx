@@ -61,9 +61,9 @@ export default function ProductCreationPage() {
       : "Exactly 12 digits, e.g. 842410000000";
 
   return (
-    <div className="max-w-3xl">
+    <div className="mx-auto max-w-3xl">
       <PageHeader
-        title="Create Product"
+        title="Create New Product"
         description="Products become selectable line items on every proforma invoice."
         backHref="/admin/home"
       />

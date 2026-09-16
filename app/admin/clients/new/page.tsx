@@ -97,9 +97,9 @@ export default function ClientCreationPage() {
       : "15 characters, as printed on the GST certificate.";
 
   return (
-    <div className="max-w-3xl">
+    <div className="mx-auto max-w-3xl">
       <PageHeader
-        title="Create Client"
+        title="Create New Client"
         description="Clients are scoped to a single assigned Seller for the Android app."
         backHref="/admin/home"
       />

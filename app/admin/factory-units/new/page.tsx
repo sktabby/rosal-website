@@ -64,9 +64,9 @@ export default function FactoryUnitCreationPage() {
   }));
 
   return (
-    <div className="max-w-3xl">
+    <div className="mx-auto max-w-3xl">
       <PageHeader
-        title="Factory Unit Creation"
+        title="Create New Factory Unit"
         description="Each unit is a dispatch location with exactly one dispatcher responsible for it."
         backHref="/admin/home"
       />

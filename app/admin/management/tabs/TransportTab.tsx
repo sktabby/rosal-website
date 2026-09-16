@@ -2,22 +2,28 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Truck } from "lucide-react";
 import DataTable, { type DataTableColumn } from "@/components/shared/DataTable";
 import SearchBar from "@/components/shared/SearchBar";
-import { RowActions, ViewDialog } from "@/components/shared/ManagementDialogs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/shared/FormField";
+import { EditDialog, Mono, RowActions, TitleCell, ViewDialog, useListState } from "@/components/shared/ManagementDialogs";
+import { Input } from "@/components/ui/input";
 import { deleteTransport, listTransport, updateTransport } from "@/lib/api/transport";
 import type { Transport } from "@/lib/types";
 import { toast } from "sonner";
 import { ApiError } from "@/lib/api/http";
 
+function TransportIcon() {
+  return (
+    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] bg-rsl-orange/15 text-rsl-orange">
+      <Truck className="h-4 w-4" />
+    </div>
+  );
+}
+
 export default function TransportTab() {
   const queryClient = useQueryClient();
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
+  const { search, setSearch, debouncedSearch, page, setPage } = useListState();
   const [viewing, setViewing] = useState<Transport | null>(null);
   const [editing, setEditing] = useState<Transport | null>(null);
   const [editForm, setEditForm] = useState({ name: "", gstin: "" });
@@ -25,8 +31,8 @@ export default function TransportTab() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["transport", "management", search, page],
-    queryFn: () => listTransport({ search, page }),
+    queryKey: ["transport", "management", debouncedSearch, page],
+    queryFn: () => listTransport({ search: debouncedSearch || undefined, page }),
   });
 
   function openEdit(t: Transport) {
@@ -63,8 +69,19 @@ export default function TransportTab() {
   }
 
   const columns: DataTableColumn<Transport>[] = [
-    { key: "name", header: "Name", render: (r) => r.name, primary: true },
-    { key: "gstin", header: "GSTIN", render: (r) => r.gstin || "—" },
+    {
+      key: "name",
+      header: "Name",
+      primary: true,
+      render: (r) => (
+        <TitleCell
+          leading={<TransportIcon />}
+          title={r.name}
+          subtitle={r.gstin ? <Mono>{r.gstin}</Mono> : "Own vehicle"}
+        />
+      ),
+    },
+    { key: "gstin", header: "GSTIN", render: (r) => (r.gstin ? <Mono>{r.gstin}</Mono> : "—") },
   ];
 
   return (
@@ -75,13 +92,21 @@ export default function TransportTab() {
         rows={data?.items ?? []}
         rowKey={(r) => r.id}
         loading={isLoading}
-        emptyTitle="No transport options yet"
+        emptyTitle={debouncedSearch ? "No matching transport options" : "No transport options yet"}
+        emptyDescription={debouncedSearch ? "Try a different name." : "Add one from the Transport Creation page."}
         page={data?.page ?? page}
         pageSize={data?.pageSize ?? 10}
         total={data?.total ?? 0}
         onPageChange={setPage}
         actions={(r) => (
-          <RowActions onView={() => setViewing(r)} onEdit={() => openEdit(r)} onDelete={() => handleDelete(r.id)} deleting={deletingId === r.id} />
+          <RowActions
+            onView={() => setViewing(r)}
+            onEdit={() => openEdit(r)}
+            onDelete={() => handleDelete(r.id)}
+            deleting={deletingId === r.id}
+            itemName={r.name}
+            itemKind="transport option"
+          />
         )}
       />
 
@@ -89,26 +114,30 @@ export default function TransportTab() {
         open={!!viewing}
         onOpenChange={(o) => !o && setViewing(null)}
         title={viewing?.name ?? ""}
-        fields={viewing ? [{ label: "GSTIN", value: viewing.gstin || "—" }] : []}
+        leading={<TransportIcon />}
+        fields={viewing ? [{ label: "GSTIN", value: viewing.gstin ? <Mono>{viewing.gstin}</Mono> : "Own vehicle — no GSTIN" }] : []}
+        onEdit={viewing ? () => openEdit(viewing) : undefined}
       />
 
-      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Transport</DialogTitle>
-          </DialogHeader>
-          <FormField label="Name">
-            <Input value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} />
-          </FormField>
-          <FormField label="GSTIN">
-            <Input value={editForm.gstin} onChange={(e) => setEditForm((f) => ({ ...f, gstin: e.target.value }))} />
-          </FormField>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
-            <Button variant="black" loading={saving} onClick={saveEdit}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <EditDialog
+        open={!!editing}
+        onOpenChange={(o) => !o && setEditing(null)}
+        title={editing ? `Edit ${editing.name}` : "Edit Transport"}
+        saving={saving}
+        onSave={saveEdit}
+      >
+        <FormField label="Name">
+          <Input value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} />
+        </FormField>
+        <FormField label="GST Number" hint="Optional — leave blank for own-vehicle entries." className="mb-0">
+          <Input
+            value={editForm.gstin}
+            onChange={(e) => setEditForm((f) => ({ ...f, gstin: e.target.value.toUpperCase() }))}
+            maxLength={15}
+            className="uppercase"
+          />
+        </FormField>
+      </EditDialog>
     </div>
   );
 }
