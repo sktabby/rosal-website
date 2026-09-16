@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FormField } from "@/components/shared/FormField";
 import SimpleSelect from "@/components/shared/SimpleSelect";
 import FileUploadField from "@/components/shared/FileUploadField";
+import BackButton from "@/components/shared/BackButton";
 import { getBill } from "@/lib/api/bills";
 import { createInvoice } from "@/lib/api/invoices";
 import { GstType, TransportType } from "@/lib/enums";
@@ -105,6 +106,7 @@ export default function CreateInvoicePage() {
 
   return (
     <div className="pb-24 lg:pb-6">
+      <BackButton fallbackHref="/accounts/bills" />
       <h2 className="text-page-title-lg text-rsl-black mb-4">Create Invoice — {bill.id.slice(0, 8).toUpperCase()}</h2>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

@@ -41,3 +41,27 @@ export function FormField({
     </div>
   );
 }
+
+/**
+ * Groups related fields inside a form card. Long creation forms read as one
+ * undifferentiated wall of inputs without these breaks.
+ */
+export function FormSection({
+  title,
+  description,
+  children,
+  className,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <section className={cn("border-t border-rsl-border pt-5 first:border-t-0 first:pt-0", className)}>
+      <h3 className="text-section-label uppercase text-rsl-black">{title}</h3>
+      {description && <p className="mt-1 text-meta text-rsl-muted">{description}</p>}
+      <div className="mt-3.5">{children}</div>
+    </section>
+  );
+}

@@ -3,9 +3,10 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import ReCAPTCHA from "react-google-recaptcha";
+import { Eye, EyeOff, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FormField } from "@/components/shared/FormField";
+import { Input, type InputProps } from "@/components/ui/input";
+import { FormField, FormSection } from "@/components/shared/FormField";
 import PageHeader from "@/components/shared/PageHeader";
 import SimpleSelect from "@/components/shared/SimpleSelect";
 import { checkEmployeeCode, createUser } from "@/lib/api/users";
@@ -21,6 +22,23 @@ const ROLE_OPTIONS = [
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
+function PasswordInput(props: InputProps) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="relative">
+      <Input {...props} type={visible ? "text" : "password"} className="pr-10" />
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? "Hide password" : "Show password"}
+        className="absolute right-0 top-0 flex h-full w-10 items-center justify-center text-rsl-muted transition-colors hover:text-rsl-black"
+      >
+        {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </div>
+  );
+}
+
 export default function UserCreationPage() {
   const router = useRouter();
   const [form, setForm] = useState({
@@ -35,6 +53,7 @@ export default function UserCreationPage() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [checkingCode, setCheckingCode] = useState(false);
+  const [codeAvailable, setCodeAvailable] = useState(false);
   const [loading, setLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -52,6 +71,7 @@ export default function UserCreationPage() {
   function set<K extends keyof typeof form>(key: K, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
     setErrors((e) => ({ ...e, [key]: "" }));
+    if (key === "employeeCode") setCodeAvailable(false);
   }
 
   async function handleCodeBlur() {
@@ -59,6 +79,7 @@ export default function UserCreationPage() {
     setCheckingCode(true);
     try {
       const res = await checkEmployeeCode(form.employeeCode);
+      setCodeAvailable(res.available);
       if (!res.available) {
         setErrors((e) => ({ ...e, employeeCode: "This Employee Code is already in use (or was previously)." }));
       }
@@ -114,83 +135,173 @@ export default function UserCreationPage() {
       ? `${form.firstName.toUpperCase()}-${form.employeeCode.slice(-5)}`
       : "—";
 
+  const codeHint = checkingCode
+    ? "Checking availability..."
+    : codeAvailable
+      ? "Available."
+      : "Must be unique — checked against the directory.";
+
   return (
-    <div>
-      <PageHeader title="Create User" description="Only Admin can create Seller, Dispatcher, or Accounts accounts." />
+    <div className="max-w-3xl">
+      <PageHeader
+        title="Create User"
+        description="Only Admin can create Seller, Dispatcher, or Accounts accounts."
+        backHref="/admin/home"
+      />
 
-      <form onSubmit={handleSubmit} className="max-w-3xl rounded-card border border-rsl-border bg-white p-4 lg:p-6">
-        <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
-          <FormField label="Role" required error={errors.role}>
-            <SimpleSelect value={form.role} onChange={(v) => set("role", v)} options={ROLE_OPTIONS} error={!!errors.role} />
-          </FormField>
-          <FormField label="Employee Code" required error={errors.employeeCode} hint={checkingCode ? "Checking availability..." : undefined}>
-            <Input
-              placeholder="Unique — checked live against DB"
-              value={form.employeeCode}
-              onChange={(e) => set("employeeCode", e.target.value)}
-              onBlur={handleCodeBlur}
-              error={!!errors.employeeCode}
-            />
-          </FormField>
-          <FormField label="First Name" required error={errors.firstName}>
-            <Input value={form.firstName} onChange={(e) => set("firstName", e.target.value)} error={!!errors.firstName} />
-          </FormField>
-          <FormField label="Last Name" required error={errors.lastName}>
-            <Input value={form.lastName} onChange={(e) => set("lastName", e.target.value)} error={!!errors.lastName} />
-          </FormField>
-          <FormField label="Phone" required error={errors.phone}>
-            <Input placeholder="+91" value={form.phone} onChange={(e) => set("phone", e.target.value)} error={!!errors.phone} />
-          </FormField>
-          <FormField label="Email" required error={errors.email}>
-            <Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} error={!!errors.email} />
-          </FormField>
-          <FormField label="Password" required error={errors.password}>
-            <Input type="password" value={form.password} onChange={(e) => set("password", e.target.value)} error={!!errors.password} />
-          </FormField>
-          <FormField label="Confirm Password" required error={errors.confirmPassword}>
-            <Input
-              type="password"
-              value={form.confirmPassword}
-              onChange={(e) => set("confirmPassword", e.target.value)}
-              error={!!errors.confirmPassword}
-            />
-          </FormField>
-        </div>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-5 rounded-card border border-rsl-border bg-white p-4 shadow-card sm:p-5 lg:p-6"
+      >
+        <FormSection title="Role & Access" description="Determines which portal this person signs in to.">
+          <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+            <FormField label="Role" required error={errors.role}>
+              <SimpleSelect
+                value={form.role}
+                onChange={(v) => set("role", v)}
+                options={ROLE_OPTIONS}
+                error={!!errors.role}
+              />
+            </FormField>
+            <FormField label="Employee Code" required error={errors.employeeCode} hint={codeHint}>
+              <Input
+                placeholder="e.g. AMIT-27891"
+                value={form.employeeCode}
+                onChange={(e) => set("employeeCode", e.target.value)}
+                onBlur={handleCodeBlur}
+                error={!!errors.employeeCode}
+              />
+            </FormField>
+          </div>
 
-        <FormField
-          label="Captcha"
-          required
-          error={errors.captcha}
-          hint={RECAPTCHA_SITE_KEY ? undefined : "NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not set."}
-        >
-          {RECAPTCHA_SITE_KEY ? (
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey={RECAPTCHA_SITE_KEY}
-              onChange={(token) => {
-                setCaptchaToken(token);
-                setErrors((e) => ({ ...e, captcha: "" }));
-              }}
-              // Google expires an unused token after ~2 minutes; drop it so a
-              // stale token is never submitted.
-              onExpired={() => setCaptchaToken(null)}
-              onErrored={() => setCaptchaToken(null)}
-            />
-          ) : (
-            <p className="text-[11.5px] text-rsl-red">
-              Captcha can&apos;t load — the site key is missing from this environment.
+          <div className="rounded-field border border-rsl-amber/40 bg-[#fdf3e0] px-3.5 py-3">
+            <p className="text-section-label uppercase text-[#8a5a00]">Generated ID preview</p>
+            <p className="mt-1 text-body-md font-bold text-[#8a5a00]">{idPreview}</p>
+            <p className="mt-1 text-meta leading-snug text-[#8a5a00]/80">
+              First name + last 5 digits of the employee code. Stored as the primary identifier.
             </p>
-          )}
-        </FormField>
+          </div>
+        </FormSection>
 
-        <div className="mt-2 rounded-field bg-[#fdf3e0] px-3 py-2.5 text-[11.5px] text-[#8a5a00]">
-          Generated Seller/Dispatcher ID preview: <span className="font-bold">{idPreview}</span>{" "}
-          (First name + last 5 digits of employee code — stored as the primary identifier)
+        <FormSection title="Personal Details" description="Login credentials are emailed to this address.">
+          <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+            <FormField label="First Name" required error={errors.firstName}>
+              <Input
+                value={form.firstName}
+                onChange={(e) => set("firstName", e.target.value)}
+                error={!!errors.firstName}
+                autoComplete="given-name"
+              />
+            </FormField>
+            <FormField label="Last Name" required error={errors.lastName}>
+              <Input
+                value={form.lastName}
+                onChange={(e) => set("lastName", e.target.value)}
+                error={!!errors.lastName}
+                autoComplete="family-name"
+              />
+            </FormField>
+            <FormField label="Phone" required error={errors.phone}>
+              <Input
+                type="tel"
+                inputMode="tel"
+                placeholder="+91"
+                value={form.phone}
+                onChange={(e) => set("phone", e.target.value)}
+                error={!!errors.phone}
+                autoComplete="tel"
+              />
+            </FormField>
+            <FormField label="Email" required error={errors.email}>
+              <Input
+                type="email"
+                inputMode="email"
+                placeholder="name@rosalsafety.com"
+                value={form.email}
+                onChange={(e) => set("email", e.target.value)}
+                error={!!errors.email}
+                autoComplete="email"
+              />
+            </FormField>
+          </div>
+        </FormSection>
+
+        <FormSection title="Security" description="The user is asked to change this after their first sign-in.">
+          <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+            <FormField
+              label="Password"
+              required
+              error={errors.password}
+              hint="Minimum 8 characters."
+            >
+              <PasswordInput
+                value={form.password}
+                onChange={(e) => set("password", e.target.value)}
+                error={!!errors.password}
+                autoComplete="new-password"
+              />
+            </FormField>
+            <FormField label="Confirm Password" required error={errors.confirmPassword}>
+              <PasswordInput
+                value={form.confirmPassword}
+                onChange={(e) => set("confirmPassword", e.target.value)}
+                error={!!errors.confirmPassword}
+                autoComplete="new-password"
+              />
+              {form.confirmPassword.length > 0 && form.confirmPassword === form.password && (
+                <p className="mt-1 flex items-center gap-1 text-[11px] text-status-done-fg">
+                  <Check className="h-3.5 w-3.5" />
+                  Passwords match.
+                </p>
+              )}
+            </FormField>
+          </div>
+        </FormSection>
+
+        <FormSection title="Verification">
+          <FormField
+            label="Captcha"
+            required
+            error={errors.captcha}
+            hint={RECAPTCHA_SITE_KEY ? undefined : "NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not set."}
+            className="mb-0"
+          >
+            {RECAPTCHA_SITE_KEY ? (
+              <div className="origin-top-left scale-[0.85] sm:scale-100">
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={RECAPTCHA_SITE_KEY}
+                  onChange={(token) => {
+                    setCaptchaToken(token);
+                    setErrors((e) => ({ ...e, captcha: "" }));
+                  }}
+                  // Google expires an unused token after ~2 minutes; drop it so a
+                  // stale token is never submitted.
+                  onExpired={() => setCaptchaToken(null)}
+                  onErrored={() => setCaptchaToken(null)}
+                />
+              </div>
+            ) : (
+              <p className="text-[11.5px] text-rsl-red">
+                Captcha can&apos;t load — the site key is missing from this environment.
+              </p>
+            )}
+          </FormField>
+        </FormSection>
+
+        <div className="flex flex-col-reverse gap-2 border-t border-rsl-border pt-5 sm:flex-row sm:justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+            className="w-full sm:w-auto"
+          >
+            Cancel
+          </Button>
+          <Button type="submit" variant="red" loading={loading} className="w-full sm:w-auto">
+            Create User
+          </Button>
         </div>
-
-        <Button type="submit" variant="red" size="block" loading={loading} className="mt-5 lg:w-auto">
-          Create User
-        </Button>
       </form>
     </div>
   );

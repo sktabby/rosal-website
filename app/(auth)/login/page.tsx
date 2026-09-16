@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Flame } from "lucide-react";
+import { RosalLockup } from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [logoFailed, setLogoFailed] = useState(false);
 
   const { data: company } = useQuery({
     queryKey: ["company-settings", "public"],
@@ -58,21 +57,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col lg:flex-row">
       <div className="relative flex shrink-0 flex-col justify-between overflow-hidden bg-gradient-to-br from-rsl-black via-[#3a0c0e] to-rsl-red lg:w-[460px]">
         <div className="relative flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-          {logoFailed ? (
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/15 lg:h-32 lg:w-32">
-              <Flame className="h-8 w-8 text-white lg:h-16 lg:w-16" />
-            </div>
-          ) : (
-            <img
-              src="/logo.png"
-              alt={companyName}
-              className="h-16 w-16 shrink-0 rounded-2xl object-contain lg:h-32 lg:w-32"
-              onError={() => setLogoFailed(true)}
-            />
-          )}
-          <p className="text-[14px] font-bold leading-tight tracking-wide text-white lg:text-[24px]">
-            ROSAL SAFETY
-          </p>
+          <RosalLockup width={260} className="hidden lg:block" />
+          <RosalLockup width={132} className="lg:hidden" />
         </div>
 
         <div className="relative border-t border-white/10 bg-black/15 px-5 py-4 backdrop-blur-sm lg:px-10 lg:py-6">

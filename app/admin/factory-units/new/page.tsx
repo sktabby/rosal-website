@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle } from "lucide-react";
+import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { FormField } from "@/components/shared/FormField";
+import { FormField, FormSection } from "@/components/shared/FormField";
 import PageHeader from "@/components/shared/PageHeader";
 import SearchableSelect from "@/components/shared/SearchableSelect";
 import { createFactoryUnit, listUnassignedDispatchers } from "@/lib/api/factoryUnits";
@@ -64,39 +64,69 @@ export default function FactoryUnitCreationPage() {
   }));
 
   return (
-    <div>
-      <PageHeader title="Factory Unit Creation" />
+    <div className="max-w-3xl">
+      <PageHeader
+        title="Factory Unit Creation"
+        description="Each unit is a dispatch location with exactly one dispatcher responsible for it."
+        backHref="/admin/home"
+      />
 
-      <form onSubmit={handleSubmit} className="max-w-xl rounded-card border border-rsl-border bg-white p-4 lg:p-6">
-        <FormField label="Factory Unit Name" required error={errors.name}>
-          <Input value={form.name} onChange={(e) => set("name", e.target.value)} error={!!errors.name} />
-        </FormField>
-        <FormField label="Address" hint="Factory unit's dispatch address (optional)">
-          <Textarea value={form.address} onChange={(e) => set("address", e.target.value)} />
-        </FormField>
-        <FormField label="Assign Dispatcher" required error={errors.assignedDispatcherId}>
-          <SearchableSelect
-            value={form.assignedDispatcherId}
-            onChange={(v) => set("assignedDispatcherId", v)}
-            options={dispatcherOptions}
-            placeholder="Select an unassigned dispatcher"
-            searchPlaceholder="Filter by name or employee code..."
-            emptyText="No unassigned dispatchers available"
-            error={!!errors.assignedDispatcherId}
-          />
-        </FormField>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-5 rounded-card border border-rsl-border bg-white p-4 shadow-card sm:p-5 lg:p-6"
+      >
+        <FormSection title="Unit Details">
+          <FormField label="Factory Unit Name" required error={errors.name}>
+            <Input
+              placeholder="e.g. Bhiwandi Unit 1"
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
+              error={!!errors.name}
+            />
+          </FormField>
+          <FormField
+            label="Address"
+            hint="Optional — appears as the dispatch address on paperwork."
+            className="mb-0"
+          >
+            <Textarea
+              value={form.address}
+              onChange={(e) => set("address", e.target.value)}
+              placeholder="Street, area, city, state, PIN"
+            />
+          </FormField>
+        </FormSection>
 
-        <div className="mb-4 flex gap-2 rounded-field bg-[#fbe6e6] px-3 py-2.5 text-[11.5px] text-[#a01818]">
-          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-          <span>
-            Only one dispatcher can be assigned per factory unit. Dispatchers already assigned elsewhere won&apos;t
-            appear in this list.
-          </span>
+        <FormSection title="Assignment">
+          <FormField label="Assign Dispatcher" required error={errors.assignedDispatcherId}>
+            <SearchableSelect
+              value={form.assignedDispatcherId}
+              onChange={(v) => set("assignedDispatcherId", v)}
+              options={dispatcherOptions}
+              placeholder="Select an unassigned dispatcher"
+              searchPlaceholder="Filter by name or employee code..."
+              emptyText="No unassigned dispatchers available"
+              error={!!errors.assignedDispatcherId}
+            />
+          </FormField>
+
+          <div className="flex gap-2 rounded-field border border-rsl-amber/40 bg-[#fdf3e0] px-3.5 py-3 text-[11.5px] leading-snug text-[#8a5a00]">
+            <Info className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>
+              Only one dispatcher can be assigned per factory unit, so dispatchers already assigned
+              elsewhere are not listed here.
+            </span>
+          </div>
+        </FormSection>
+
+        <div className="flex flex-col-reverse gap-2 border-t border-rsl-border pt-5 sm:flex-row sm:justify-end">
+          <Button type="button" variant="outline" onClick={() => router.back()} className="w-full sm:w-auto">
+            Cancel
+          </Button>
+          <Button type="submit" variant="red" loading={loading} className="w-full sm:w-auto">
+            Create Factory Unit
+          </Button>
         </div>
-
-        <Button type="submit" variant="black" size="block" loading={loading} className="lg:w-auto">
-          Create Factory Unit
-        </Button>
       </form>
     </div>
   );

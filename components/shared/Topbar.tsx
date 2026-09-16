@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu } from "lucide-react";
+import { RosalMark } from "./Logo";
 import { initials } from "@/lib/utils";
 import { useSession } from "@/providers/SessionProvider";
 
@@ -25,6 +26,7 @@ export default function Topbar({
         >
           <Menu className="h-5 w-5" />
         </button>
+        <RosalMark size={26} className="shrink-0 md:hidden" />
         <h1 className="truncate text-page-title lg:text-page-title-lg text-rsl-black">{title}</h1>
       </div>
       <div className="flex items-center gap-3">

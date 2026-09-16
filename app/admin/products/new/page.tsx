@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FormField } from "@/components/shared/FormField";
+import { FormField, FormSection } from "@/components/shared/FormField";
 import PageHeader from "@/components/shared/PageHeader";
 import SimpleSelect from "@/components/shared/SimpleSelect";
 import { createProduct } from "@/lib/api/products";
@@ -55,34 +55,78 @@ export default function ProductCreationPage() {
     }
   }
 
+  const hsnHint =
+    form.hsnCode.length > 0 && form.hsnCode.length < 12
+      ? `${form.hsnCode.length} of 12 digits.`
+      : "Exactly 12 digits, e.g. 842410000000";
+
   return (
-    <div>
-      <PageHeader title="Create Product" />
+    <div className="max-w-3xl">
+      <PageHeader
+        title="Create Product"
+        description="Products become selectable line items on every proforma invoice."
+        backHref="/admin/home"
+      />
 
-      <form onSubmit={handleSubmit} className="max-w-3xl rounded-card border border-rsl-border bg-white p-4 lg:p-6">
-        <FormField label="Product Name" required error={errors.name}>
-          <Input
-            placeholder="e.g. ABC Type Dry Powder Fire Extinguisher 6kg"
-            value={form.name}
-            onChange={(e) => set("name", e.target.value)}
-            error={!!errors.name}
-          />
-        </FormField>
-        <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
-          <FormField label="Unit" required error={errors.unit}>
-            <SimpleSelect value={form.unit} onChange={(v) => set("unit", v)} options={UNIT_OPTIONS} error={!!errors.unit} />
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-5 rounded-card border border-rsl-border bg-white p-4 shadow-card sm:p-5 lg:p-6"
+      >
+        <FormSection title="Product Details">
+          <FormField label="Product Name" required error={errors.name}>
+            <Input
+              placeholder="e.g. ABC Type Dry Powder Fire Extinguisher 6kg"
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
+              error={!!errors.name}
+            />
           </FormField>
-          <FormField label="Tax (GST %)" required error={errors.taxPercent}>
-            <SimpleSelect value={form.taxPercent} onChange={(v) => set("taxPercent", v)} options={TAX_OPTIONS} error={!!errors.taxPercent} />
+          <FormField
+            label="Unit"
+            required
+            error={errors.unit}
+            className="mb-0 sm:max-w-[calc(50%-0.5rem)]"
+          >
+            <SimpleSelect
+              value={form.unit}
+              onChange={(v) => set("unit", v)}
+              options={UNIT_OPTIONS}
+              error={!!errors.unit}
+            />
           </FormField>
+        </FormSection>
+
+        <FormSection title="Tax & Classification" description="Drives the GST applied on every invoice line.">
+          <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+            <FormField label="Tax (GST %)" required error={errors.taxPercent} className="mb-3 sm:mb-0">
+              <SimpleSelect
+                value={form.taxPercent}
+                onChange={(v) => set("taxPercent", v)}
+                options={TAX_OPTIONS}
+                error={!!errors.taxPercent}
+              />
+            </FormField>
+            <FormField label="HSN Code" required error={errors.hsnCode} hint={hsnHint} className="mb-0">
+              <Input
+                value={form.hsnCode}
+                onChange={(e) => set("hsnCode", e.target.value.replace(/\D/g, ""))}
+                error={!!errors.hsnCode}
+                inputMode="numeric"
+                maxLength={12}
+                placeholder="842410000000"
+              />
+            </FormField>
+          </div>
+        </FormSection>
+
+        <div className="flex flex-col-reverse gap-2 border-t border-rsl-border pt-5 sm:flex-row sm:justify-end">
+          <Button type="button" variant="outline" onClick={() => router.back()} className="w-full sm:w-auto">
+            Cancel
+          </Button>
+          <Button type="submit" variant="red" loading={loading} className="w-full sm:w-auto">
+            Create Product
+          </Button>
         </div>
-        <FormField label="HSN Code" required error={errors.hsnCode} hint="Exactly 12 digits, e.g. 842410000000">
-          <Input value={form.hsnCode} onChange={(e) => set("hsnCode", e.target.value)} error={!!errors.hsnCode} maxLength={12} />
-        </FormField>
-
-        <Button type="submit" variant="amber" size="block" loading={loading} className="mt-2 lg:w-auto">
-          Create Product
-        </Button>
       </form>
     </div>
   );

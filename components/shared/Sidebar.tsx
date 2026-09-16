@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Flame, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ChevronRight, LogOut, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
+import { cn, initials } from "@/lib/utils";
+import { useSession } from "@/providers/SessionProvider";
+import { RosalMark } from "./Logo";
 import type { NavItem } from "@/lib/nav";
 
 interface SidebarProps {
@@ -15,57 +17,158 @@ interface SidebarProps {
   onToggleCollapsed: () => void;
 }
 
-function LogoBlock({ collapsed, roleLabel }: { collapsed: boolean; roleLabel: string }) {
+function BrandBlock({ collapsed }: { collapsed: boolean }) {
   return (
-    <div className={cn("flex items-center gap-2.5 px-4 py-4", collapsed && "justify-center px-2")}>
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-rsl-red">
-        <Flame className="h-4.5 w-4.5 text-white" />
-      </div>
+    <div
+      className={cn(
+        "flex items-center gap-2.5 px-4 py-4",
+        collapsed && "justify-center px-2"
+      )}
+    >
+      <RosalMark size={collapsed ? 30 : 32} className="shrink-0" />
       {!collapsed && (
-        <div className="min-w-0">
-          <p className="truncate text-[13px] font-bold tracking-wide text-white">ROSAL SAFETY</p>
-          <p className="truncate text-[10px] text-[#999999]">{roleLabel}</p>
-        </div>
+        <p className="truncate text-[13px] font-bold tracking-[0.06em] text-white">
+          ROSAL SAFETY
+        </p>
       )}
     </div>
   );
 }
 
-function NavList({
+function AccountBlock({ collapsed, roleLabel }: { collapsed: boolean; roleLabel: string }) {
+  const { user } = useSession();
+  const name = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "Signed in";
+  const meta = [user?.role?.toLowerCase(), user?.employeeCode].filter(Boolean).join("  ·  ");
+
+  const avatar = (
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-rsl-amber to-rsl-orange text-[13px] font-bold text-rsl-black">
+      {initials(user ? { firstName: user.firstName, lastName: user.lastName } : null)}
+    </div>
+  );
+
+  if (collapsed) {
+    return (
+      <div className="flex justify-center px-2 py-3" title={`${name} — ${roleLabel}`}>
+        {avatar}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-3 px-4 py-3.5">
+      {avatar}
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[13px] font-bold text-white">{name}</p>
+        <p className="truncate text-[10.5px] capitalize text-white/55">{meta || roleLabel}</p>
+      </div>
+    </div>
+  );
+}
+
+function NavRow({
+  item,
+  active,
+  collapsed,
+  onNavigate,
+}: {
+  item: NavItem;
+  active: boolean;
+  collapsed: boolean;
+  onNavigate?: () => void;
+}) {
+  const Icon = item.icon;
+  return (
+    <Link
+      href={item.href}
+      onClick={onNavigate}
+      aria-current={active ? "page" : undefined}
+      title={collapsed ? item.label : undefined}
+      className={cn(
+        "group relative flex h-[46px] items-center gap-3 rounded-[10px] pr-2 text-[13px] transition-colors",
+        collapsed ? "justify-center pl-0 pr-0" : "pl-0",
+        active ? "bg-white/[0.07] font-bold text-rsl-amber" : "text-[#dddddd] hover:bg-white/[0.04] hover:text-white"
+      )}
+    >
+      <span
+        aria-hidden
+        className={cn(
+          "ml-0 h-[22px] w-[3px] shrink-0 rounded-[2px]",
+          active ? "bg-rsl-amber" : "bg-transparent"
+        )}
+      />
+      <Icon className={cn("h-[18px] w-[18px] shrink-0", collapsed && "mx-auto")} />
+      {!collapsed && (
+        <>
+          <span className="min-w-0 flex-1 truncate">{item.label}</span>
+          <ChevronRight className="h-[18px] w-[18px] shrink-0 text-white/20" />
+        </>
+      )}
+    </Link>
+  );
+}
+
+function PanelDivider() {
+  return <div className="h-px w-full bg-white/[0.08]" />;
+}
+
+function SidebarBody({
   items,
+  roleLabel,
   collapsed,
   pathname,
   onNavigate,
 }: {
   items: NavItem[];
+  roleLabel: string;
   collapsed: boolean;
   pathname: string;
   onNavigate?: () => void;
 }) {
+  const { logout } = useSession();
+
   return (
-    <nav className="flex flex-col gap-1 px-2">
-      {items.map((item) => {
-        const active = pathname.startsWith(item.href);
-        const Icon = item.icon;
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onNavigate}
-            className={cn(
-              "flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[11.5px] font-bold transition-colors",
-              collapsed && "justify-center px-0",
-              active ? "bg-rsl-red text-white" : "text-[#bbbbbb] hover:bg-white/5 hover:text-white"
-            )}
-            title={collapsed ? item.label : undefined}
-          >
-            <Icon className="h-4 w-4 shrink-0" />
-            {!collapsed && <span className="truncate">{item.label}</span>}
-            {active && !collapsed && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white" />}
-          </Link>
-        );
-      })}
-    </nav>
+    <>
+      <BrandBlock collapsed={collapsed} />
+      <PanelDivider />
+      <AccountBlock collapsed={collapsed} roleLabel={roleLabel} />
+      <PanelDivider />
+
+      <div className={cn("flex-1 overflow-y-auto py-3", collapsed ? "px-2" : "px-3")}>
+        {!collapsed && (
+          <p className="px-2 pb-2 text-section-label uppercase text-white/35">Menu</p>
+        )}
+        <nav className="flex flex-col gap-0.5">
+          {items.map((item) => (
+            <NavRow
+              key={item.href}
+              item={item}
+              active={pathname.startsWith(item.href)}
+              collapsed={collapsed}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </nav>
+      </div>
+
+      <PanelDivider />
+      <div className={cn("py-3", collapsed ? "px-2" : "px-3")}>
+        <button
+          onClick={logout}
+          title={collapsed ? "Logout" : undefined}
+          className={cn(
+            "flex h-[46px] w-full items-center gap-3 rounded-[10px] pr-2 text-[13px] text-[#FF8B8B] transition-colors hover:bg-white/[0.04]",
+            collapsed && "justify-center pr-0"
+          )}
+        >
+          <span aria-hidden className="h-[22px] w-[3px] shrink-0" />
+          <LogOut className={cn("h-[18px] w-[18px] shrink-0", collapsed && "mx-auto")} />
+          {!collapsed && <span className="flex-1 text-left">Logout</span>}
+        </button>
+        {!collapsed && (
+          <p className="px-2 pt-2 text-[9.5px] text-white/[0.28]">Rosal Safety OMS · Web</p>
+        )}
+      </div>
+    </>
   );
 }
 
@@ -81,51 +184,52 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Desktop / tablet fixed sidebar */}
+      {/* Desktop sidebar — collapsible to an icon rail */}
       <aside
         className={cn(
-          "hidden lg:flex lg:flex-col bg-rsl-black shrink-0 transition-[width] duration-200",
-          collapsed ? "lg:w-[64px]" : "lg:w-[220px]"
+          "hidden shrink-0 bg-rsl-black transition-[width] duration-200 lg:flex lg:flex-col",
+          collapsed ? "lg:w-[72px]" : "lg:w-[248px]"
         )}
       >
-        <LogoBlock collapsed={collapsed} roleLabel={roleLabel} />
-        <div className="flex-1 overflow-y-auto py-2">
-          <NavList items={items} collapsed={collapsed} pathname={pathname} />
-        </div>
+        <SidebarBody
+          items={items}
+          roleLabel={roleLabel}
+          collapsed={collapsed}
+          pathname={pathname}
+        />
         <button
           onClick={onToggleCollapsed}
-          className="flex items-center justify-center gap-2 border-t border-white/10 py-3 text-[#999999] hover:text-white"
+          className="flex items-center justify-center border-t border-white/10 py-3 text-white/55 transition-colors hover:text-white"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
         </button>
       </aside>
 
-      {/* Tablet icon rail (md only) */}
-      <aside className="hidden md:flex lg:hidden md:flex-col md:w-[64px] bg-rsl-black shrink-0">
-        <LogoBlock collapsed roleLabel={roleLabel} />
-        <div className="flex-1 overflow-y-auto py-2">
-          <NavList items={items} collapsed pathname={pathname} />
-        </div>
+      {/* Tablet icon rail */}
+      <aside className="hidden shrink-0 bg-rsl-black md:flex md:w-[72px] md:flex-col lg:hidden">
+        <SidebarBody items={items} roleLabel={roleLabel} collapsed pathname={pathname} />
       </aside>
 
       {/* Mobile off-canvas drawer */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div
-            className="absolute inset-0 bg-black/50 animate-fadeIn"
-            onClick={onCloseMobile}
-          />
-          <div className="absolute left-0 top-0 h-full w-[82%] max-w-[300px] bg-rsl-black shadow-sheet flex flex-col animate-slideIn">
-            <div className="flex items-center justify-between px-4 py-4">
-              <LogoBlock collapsed={false} roleLabel={roleLabel} />
-              <button onClick={onCloseMobile} className="mr-3 text-[#999999] hover:text-white" aria-label="Close menu">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto py-2">
-              <NavList items={items} collapsed={false} pathname={pathname} onNavigate={onCloseMobile} />
-            </div>
+          <div className="absolute inset-0 bg-black/50 animate-fadeIn" onClick={onCloseMobile} />
+          <div className="absolute left-0 top-0 flex h-full w-[84%] max-w-[300px] flex-col bg-rsl-black shadow-sheet animate-slideIn">
+            <button
+              onClick={onCloseMobile}
+              className="absolute right-3 top-4 z-10 text-white/55 transition-colors hover:text-white"
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <SidebarBody
+              items={items}
+              roleLabel={roleLabel}
+              collapsed={false}
+              pathname={pathname}
+              onNavigate={onCloseMobile}
+            />
           </div>
         </div>
       )}

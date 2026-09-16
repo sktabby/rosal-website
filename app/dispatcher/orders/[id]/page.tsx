@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusChip } from "@/components/shared/StatusChip";
+import BackButton from "@/components/shared/BackButton";
 import { acceptOrder, completeOrder, getOrder, rejectOrder } from "@/lib/api/orders";
 import { getSocket } from "@/lib/socket";
 import { formatINR, fullName, num } from "@/lib/utils";
@@ -78,6 +79,7 @@ export default function DispatcherOrderDetailPage() {
 
   return (
     <div className="pb-24 lg:pb-6">
+      <BackButton fallbackHref="/dispatcher/queue" />
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-page-title-lg text-rsl-black">{order.orderNumber}</h2>

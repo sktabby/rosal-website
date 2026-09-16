@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { verifyOtp, resendOtp } from "@/lib/api/auth";
 import { ApiError } from "@/lib/api/http";
 import { getPendingEmployeeCode, roleHomePath, setSession } from "@/lib/session";
+import { useSession } from "@/providers/SessionProvider";
 import { cn } from "@/lib/utils";
 
 const OTP_LENGTH = 6;
@@ -14,6 +15,7 @@ const RESEND_SECONDS = 30;
 
 export default function OtpPage() {
   const router = useRouter();
+  const { refresh } = useSession();
   const [digits, setDigits] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -61,6 +63,7 @@ export default function OtpPage() {
     try {
       const res = await verifyOtp(employeeCode, otp);
       setSession(res.accessToken, res.role);
+      await refresh();
       router.push(roleHomePath(res.role));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Invalid OTP. Try again.");

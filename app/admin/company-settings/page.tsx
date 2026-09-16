@@ -79,7 +79,7 @@ export default function CompanySettingsPage() {
 
   return (
     <div>
-      <PageHeader title="Company Settings" />
+      <PageHeader title="Company Settings" backHref="/admin/home" />
 
       <div className="mb-4 flex gap-2 rounded-field bg-[#fbe6e6] px-3 py-2.5 text-[11.5px] text-[#a01818]">
         <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
