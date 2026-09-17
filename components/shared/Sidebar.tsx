@@ -17,19 +17,38 @@ interface SidebarProps {
   onToggleCollapsed: () => void;
 }
 
-function BrandBlock({ collapsed }: { collapsed: boolean }) {
+function BrandBlock({
+  collapsed,
+  onToggleCollapsed,
+}: {
+  collapsed: boolean;
+  /** Only the desktop rail passes this — tablet is forced-collapsed and mobile has its own close button. */
+  onToggleCollapsed?: () => void;
+}) {
   return (
     <div
       className={cn(
-        "flex items-center gap-2.5 px-4 py-4",
-        collapsed && "justify-center px-2"
+        "flex items-center px-4 py-4",
+        collapsed ? "flex-col gap-2 px-2" : "justify-between"
       )}
     >
-      <RosalMark size={collapsed ? 30 : 32} className="shrink-0" />
-      {!collapsed && (
-        <p className="truncate text-[13px] font-bold tracking-[0.06em] text-white">
-          ROSAL SAFETY
-        </p>
+      <div className="flex min-w-0 items-center gap-2.5">
+        <RosalMark size={collapsed ? 28 : 32} className="shrink-0" />
+        {!collapsed && (
+          <p className="truncate text-[13px] font-bold tracking-[0.06em] text-white">
+            ROSAL SAFETY
+          </p>
+        )}
+      </div>
+      {onToggleCollapsed && (
+        <button
+          onClick={onToggleCollapsed}
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[7px] text-white/50 transition-colors hover:bg-white/10 hover:text-white"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+        </button>
       )}
     </div>
   );
@@ -117,18 +136,20 @@ function SidebarBody({
   collapsed,
   pathname,
   onNavigate,
+  onToggleCollapsed,
 }: {
   items: NavItem[];
   roleLabel: string;
   collapsed: boolean;
   pathname: string;
   onNavigate?: () => void;
+  onToggleCollapsed?: () => void;
 }) {
   const { logout } = useSession();
 
   return (
     <>
-      <BrandBlock collapsed={collapsed} />
+      <BrandBlock collapsed={collapsed} onToggleCollapsed={onToggleCollapsed} />
       <PanelDivider />
       <AccountBlock collapsed={collapsed} roleLabel={roleLabel} />
       <PanelDivider />
@@ -196,14 +217,8 @@ export default function Sidebar({
           roleLabel={roleLabel}
           collapsed={collapsed}
           pathname={pathname}
+          onToggleCollapsed={onToggleCollapsed}
         />
-        <button
-          onClick={onToggleCollapsed}
-          className="flex items-center justify-center border-t border-white/10 py-3 text-white/55 transition-colors hover:text-white"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-        </button>
       </aside>
 
       {/* Tablet icon rail */}

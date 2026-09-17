@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Check, Copy, Eye, KeyRound, Pencil, Trash2 } from "lucide-react";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -136,9 +136,15 @@ interface RowActionsProps {
   /** Shown in the confirmation so the admin knows exactly what goes. */
   itemName: string;
   itemKind: string;
+  /**
+   * Users tab only. A plain trigger, not self-contained, because the same
+   * reset flow is also reachable from the View dialog's secondary action —
+   * the confirm/result dialogs live once in the parent, not per row.
+   */
+  onResetPassword?: () => void;
 }
 
-export function RowActions({ onView, onEdit, onDelete, deleting, itemName, itemKind }: RowActionsProps) {
+export function RowActions({ onView, onEdit, onDelete, deleting, itemName, itemKind, onResetPassword }: RowActionsProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const iconBtn =
@@ -152,6 +158,16 @@ export function RowActions({ onView, onEdit, onDelete, deleting, itemName, itemK
       <button onClick={onEdit} className={cn(iconBtn, "hover:bg-rsl-bg hover:text-ink")} aria-label={`Edit ${itemName}`} title="Edit">
         <Pencil className="h-4 w-4" />
       </button>
+      {onResetPassword && (
+        <button
+          onClick={onResetPassword}
+          className={cn(iconBtn, "hover:bg-rsl-bg hover:text-ink")}
+          aria-label={`Reset password for ${itemName}`}
+          title="Reset password"
+        >
+          <KeyRound className="h-4 w-4" />
+        </button>
+      )}
       <button
         onClick={() => setConfirmOpen(true)}
         className={cn(iconBtn, "hover:bg-danger-bg hover:text-rsl-red")}
@@ -176,6 +192,65 @@ export function RowActions({ onView, onEdit, onDelete, deleting, itemName, itemK
   );
 }
 
+// ---- Password reset result ---------------------------------------------------
+
+export function PasswordResultDialog({
+  open,
+  onOpenChange,
+  itemName,
+  password,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  itemName: string;
+  password: string;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!open) setCopied(false);
+  }, [open]);
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(password);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard access can be blocked; the password is still visible to select manually.
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent maxWidthClass="lg:max-w-[440px]">
+        <DialogHeader>
+          <DialogTitle className="font-bold">Password reset for {itemName}</DialogTitle>
+          <DialogDescription>
+            Emailed to them just now. This is shown only once — copy it now if you need to share it directly.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex items-center justify-between gap-3 rounded-field border border-rsl-border bg-rsl-bg px-3.5 py-3">
+          <span className="select-all font-mono text-[15px] font-bold tracking-wide text-ink">{password}</span>
+          <button
+            onClick={copy}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-field text-rsl-muted transition-colors hover:bg-surface hover:text-ink"
+            aria-label="Copy password"
+            title="Copy"
+          >
+            {copied ? <Check className="h-4 w-4 text-status-done-fg" /> : <Copy className="h-4 w-4" />}
+          </button>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
+            Done
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ---- View -------------------------------------------------------------------
 
 export function ViewDialog({
@@ -186,6 +261,7 @@ export function ViewDialog({
   leading,
   fields,
   onEdit,
+  secondaryAction,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -194,6 +270,8 @@ export function ViewDialog({
   leading?: React.ReactNode;
   fields: { label: string; value: React.ReactNode }[];
   onEdit?: () => void;
+  /** e.g. "Reset Password" on the Users tab — sits between Close and Edit. */
+  secondaryAction?: { label: string; icon?: React.ComponentType<{ className?: string }>; onClick: () => void };
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -216,21 +294,36 @@ export function ViewDialog({
             </div>
           ))}
         </div>
-        {onEdit && (
+        {(onEdit || secondaryAction) && (
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
               Close
             </Button>
-            <Button
-              variant="red"
-              onClick={() => {
-                onOpenChange(false);
-                onEdit();
-              }}
-              className="w-full sm:w-auto"
-            >
-              <Pencil className="h-4 w-4" /> Edit
-            </Button>
+            {secondaryAction && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  onOpenChange(false);
+                  secondaryAction.onClick();
+                }}
+                className="w-full sm:w-auto"
+              >
+                {secondaryAction.icon && <secondaryAction.icon className="h-4 w-4" />}
+                {secondaryAction.label}
+              </Button>
+            )}
+            {onEdit && (
+              <Button
+                variant="red"
+                onClick={() => {
+                  onOpenChange(false);
+                  onEdit();
+                }}
+                className="w-full sm:w-auto"
+              >
+                <Pencil className="h-4 w-4" /> Edit
+              </Button>
+            )}
           </DialogFooter>
         )}
       </DialogContent>

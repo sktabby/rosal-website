@@ -74,6 +74,7 @@ const ACTION: Record<string, { verb: string; chip: string; tone: Tone }> = {
   completed: { verb: "dispatched", chip: "Dispatched", tone: "dispatched" },
   rejected: { verb: "rejected", chip: "Rejected", tone: "rejected" },
   cancelled: { verb: "cancelled", chip: "Cancelled", tone: "cancelled" },
+  password_reset: { verb: "reset the password for", chip: "Password Reset", tone: "processing" },
 };
 
 function actionInfo(action: string) {

@@ -2,13 +2,16 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { KeyRound } from "lucide-react";
 import DataTable, { type DataTableColumn } from "@/components/shared/DataTable";
 import SearchBar from "@/components/shared/SearchBar";
+import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { FormField } from "@/components/shared/FormField";
 import {
   EditDialog,
   Initials,
   Mono,
+  PasswordResultDialog,
   ROLE_NAME,
   RowActions,
   StatusPill,
@@ -17,7 +20,7 @@ import {
   useListState,
 } from "@/components/shared/ManagementDialogs";
 import { Input } from "@/components/ui/input";
-import { deleteUser, listUsers, updateUser } from "@/lib/api/users";
+import { deleteUser, listUsers, resetUserPassword, updateUser } from "@/lib/api/users";
 import type { UserRecord } from "@/lib/types";
 import { fullName } from "@/lib/utils";
 import { toast } from "sonner";
@@ -31,6 +34,9 @@ export default function UsersTab() {
   const [editForm, setEditForm] = useState({ firstName: "", lastName: "", phone: "", email: "" });
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [resettingFor, setResettingFor] = useState<UserRecord | null>(null);
+  const [resettingPassword, setResettingPassword] = useState(false);
+  const [resetResult, setResetResult] = useState<{ name: string; password: string } | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["users", "management", debouncedSearch, page],
@@ -54,6 +60,20 @@ export default function UsersTab() {
       toast.error(err instanceof ApiError ? err.message : "Couldn't update user.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function confirmResetPassword() {
+    if (!resettingFor) return;
+    setResettingPassword(true);
+    try {
+      const { temporaryPassword } = await resetUserPassword(resettingFor.id);
+      setResetResult({ name: fullName(resettingFor), password: temporaryPassword });
+      setResettingFor(null);
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Couldn't reset password.");
+    } finally {
+      setResettingPassword(false);
     }
   }
 
@@ -111,6 +131,7 @@ export default function UsersTab() {
             deleting={deletingId === r.id}
             itemName={fullName(r)}
             itemKind="user"
+            onResetPassword={() => setResettingFor(r)}
           />
         )}
       />
@@ -133,6 +154,27 @@ export default function UsersTab() {
             : []
         }
         onEdit={viewing ? () => openEdit(viewing) : undefined}
+        secondaryAction={
+          viewing ? { label: "Reset Password", icon: KeyRound, onClick: () => setResettingFor(viewing) } : undefined
+        }
+      />
+
+      <ConfirmDialog
+        open={!!resettingFor}
+        onOpenChange={(o) => !o && setResettingFor(null)}
+        title={resettingFor ? `Reset password for "${fullName(resettingFor)}"?` : ""}
+        description="Their current password stops working immediately. A new temporary password is generated and emailed to them, and shown here once."
+        confirmLabel="Reset Password"
+        destructive={false}
+        loading={resettingPassword}
+        onConfirm={confirmResetPassword}
+      />
+
+      <PasswordResultDialog
+        open={!!resetResult}
+        onOpenChange={(o) => !o && setResetResult(null)}
+        itemName={resetResult?.name ?? ""}
+        password={resetResult?.password ?? ""}
       />
 
       <EditDialog
