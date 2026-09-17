@@ -46,6 +46,14 @@ export function getPendingEmployeeCode(): string | undefined {
   return Cookies.get(CODE_KEY);
 }
 
+// SELLER exists as a role (the Android app's primary user) but has no web
+// portal — only these three have a page to land on here.
+const WEB_PORTAL_ROLES: ReadonlySet<string> = new Set(["ADMIN", "DISPATCHER", "ACCOUNTS"]);
+
+export function hasWebPortal(role?: UserRole | string): boolean {
+  return !!role && WEB_PORTAL_ROLES.has(role);
+}
+
 export function roleHomePath(role?: UserRole | string): string {
   switch (role) {
     case "ADMIN":

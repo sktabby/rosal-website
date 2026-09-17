@@ -6,7 +6,7 @@ import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { verifyOtp, resendOtp } from "@/lib/api/auth";
 import { ApiError } from "@/lib/api/http";
-import { getPendingEmployeeCode, roleHomePath, setSession } from "@/lib/session";
+import { getPendingEmployeeCode, hasWebPortal, roleHomePath, setSession } from "@/lib/session";
 import { useSession } from "@/providers/SessionProvider";
 import { cn } from "@/lib/utils";
 
@@ -62,6 +62,16 @@ export default function OtpPage() {
     setLoading(true);
     try {
       const res = await verifyOtp(employeeCode, otp);
+      // The credentials and OTP are correct, but this account's role has no
+      // web portal (Sellers use the Android app). Don't persist a session
+      // that would just get the user silently bounced back here on the next
+      // navigation — tell them why up front instead.
+      if (!hasWebPortal(res.role)) {
+        setError("This account doesn't have access to the web portal. Please use the Rosal Safety mobile app to sign in.");
+        setDigits(Array(OTP_LENGTH).fill(""));
+        inputsRef.current[0]?.focus();
+        return;
+      }
       setSession(res.accessToken, res.role);
       await refresh();
       router.push(roleHomePath(res.role));

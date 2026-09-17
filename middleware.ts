@@ -8,6 +8,10 @@ const ROLE_PREFIXES: Record<string, string> = {
   "/accounts": "ACCOUNTS",
 };
 
+// Mirrors lib/session.ts's WEB_PORTAL_ROLES — kept separate since middleware
+// runs on the edge runtime and can't import client-only cookie helpers.
+const WEB_PORTAL_ROLES = new Set(["ADMIN", "DISPATCHER", "ACCOUNTS"]);
+
 function roleHome(role?: string) {
   switch (role) {
     case "ADMIN":
@@ -19,6 +23,19 @@ function roleHome(role?: string) {
     default:
       return "/login";
   }
+}
+
+/**
+ * A token can exist for a role with no web portal (e.g. Seller, or a stray
+ * cookie from before this check existed). Rather than bounce it to roleHome,
+ * which is "/login" for these roles and looks like a silent, unexplained
+ * failure, clear it here and say why.
+ */
+function noPortalAccessRedirect(request: NextRequest) {
+  const res = NextResponse.redirect(new URL("/login?reason=no-portal-access", request.url));
+  res.cookies.delete("rsl_token");
+  res.cookies.delete("rsl_role");
+  return res;
 }
 
 export function middleware(request: NextRequest) {
@@ -39,11 +56,16 @@ export function middleware(request: NextRequest) {
 
   if (pathname === "/") {
     if (!token) return NextResponse.redirect(new URL("/login", request.url));
+    if (!role || !WEB_PORTAL_ROLES.has(role)) return noPortalAccessRedirect(request);
     return NextResponse.redirect(new URL(roleHome(role), request.url));
   }
 
   if (!token) {
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (!role || !WEB_PORTAL_ROLES.has(role)) {
+    return noPortalAccessRedirect(request);
   }
 
   // change-password is shared across all roles — only requires being logged in.

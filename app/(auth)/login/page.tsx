@@ -2,8 +2,8 @@
 
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { RosalLockup, RosalMark } from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
@@ -14,11 +14,27 @@ import { getCompanySettings } from "@/lib/api/companySettings";
 import { ApiError } from "@/lib/api/http";
 import { setPendingEmployeeCode } from "@/lib/session";
 
+const NO_PORTAL_ACCESS_MESSAGE =
+  "This account doesn't have access to the web portal. Please use the Rosal Safety mobile app to sign in.";
+
+// useSearchParams() opts the page out of static rendering unless wrapped in
+// Suspense — Next.js build fails on this page otherwise.
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [employeeCode, setEmployeeCode] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    searchParams.get("reason") === "no-portal-access" ? NO_PORTAL_ACCESS_MESSAGE : null
+  );
   const [loading, setLoading] = useState(false);
 
   const { data: company } = useQuery({
