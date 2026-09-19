@@ -121,6 +121,8 @@ export interface CompanySettings {
   bankIFSC?: string | null;
   bankBranch?: string | null;
   authorisedSignatory?: string | null;
+  officeAddress?: string | null;
+  declaration?: string | null;
 }
 
 export interface PiLineItem {

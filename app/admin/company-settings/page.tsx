@@ -14,10 +14,11 @@ import type { CompanySettings } from "@/lib/types";
 import { ApiError } from "@/lib/api/http";
 import { toast } from "sonner";
 
-const FIELD_DEFS: { key: keyof CompanySettings; label: string; textarea?: boolean }[] = [
+const FIELD_DEFS: { key: keyof CompanySettings; label: string; textarea?: boolean; hint?: string }[] = [
   { key: "name", label: "Company Name" },
   { key: "gstin", label: "GSTIN" },
-  { key: "address", label: "Registered Address", textarea: true },
+  { key: "address", label: "Factory Address", textarea: true },
+  { key: "officeAddress", label: "Office Address", textarea: true },
   { key: "udyamNumber", label: "UDYAM/MSME No." },
   { key: "panNumber", label: "PAN" },
   { key: "bankName", label: "Bank Name" },
@@ -25,6 +26,12 @@ const FIELD_DEFS: { key: keyof CompanySettings; label: string; textarea?: boolea
   { key: "bankIFSC", label: "Bank IFSC" },
   { key: "bankBranch", label: "Bank Branch" },
   { key: "authorisedSignatory", label: "Authorised Signatory" },
+  {
+    key: "declaration",
+    label: "Declaration",
+    textarea: true,
+    hint: "Printed on every PI. Put each point on its own line.",
+  },
 ];
 
 export default function CompanySettingsPage() {
@@ -90,8 +97,9 @@ export default function CompanySettingsPage() {
         <div className="grid grid-cols-1 gap-x-4 lg:grid-cols-2">
           {FIELD_DEFS.map((f) =>
             f.textarea ? (
-              <FormField key={f.key} label={f.label} className="lg:col-span-2">
+              <FormField key={f.key} label={f.label} hint={f.hint} className="lg:col-span-2">
                 <Textarea
+                  rows={f.key === "declaration" ? 6 : undefined}
                   value={(form[f.key] as string) ?? ""}
                   onChange={(e) => setForm((s) => ({ ...s, [f.key]: e.target.value }))}
                 />
