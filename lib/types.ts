@@ -183,8 +183,8 @@ export interface SalesOrder {
   seller?: Pick<UserRecord, "id" | "firstName" | "lastName">;
 }
 
-// A Bill's nested `order` is confirmed FLAT — it does not include
-// order.proformaInvoice or order.factoryUnit. Don't reach for those.
+// A Bill's nested `order`. GET /bills/:id also includes order.proformaInvoice
+// (for ship-to and the transport type); the /bills list does not.
 export interface BillOrderSummary {
   id: string;
   orderNumber: string;
@@ -200,6 +200,15 @@ export interface BillOrderSummary {
   cancelledAt: string | null;
   createdAt: string;
   updatedAt: string;
+  proformaInvoice?: ProformaInvoice;
+}
+
+/** Set once Accounts has invoiced the bill. */
+export interface BillInvoiceRef {
+  id: string;
+  invoiceNumber: string;
+  createdAt: string;
+  grandTotal?: DecimalString;
 }
 
 export interface BillLineItem {
@@ -228,6 +237,7 @@ export interface Bill {
   lineItems?: BillLineItem[];
   order?: BillOrderSummary;
   createdBySeller?: Pick<UserRecord, "id" | "firstName" | "lastName" | "employeeCode">;
+  invoice?: BillInvoiceRef | null;
 }
 
 export interface InvoiceLineItem {

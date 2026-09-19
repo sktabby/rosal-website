@@ -30,9 +30,7 @@ export function getInvoice(id: string) {
   return apiRequest<Invoice>(`/invoices/${id}`);
 }
 
-// PDF generation is a confirmed backend stub today (returns 400). Callers
-// should catch and show the "not available yet" state — see
-// components/shared/InvoicePdfLink.tsx.
+/** The backend renders the tax invoice PDF on request (auth header required). */
 export function getInvoicePdfUrl(id: string) {
   const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000/api";
   return `${base}/invoices/${id}/pdf`;
