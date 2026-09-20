@@ -21,6 +21,19 @@ const ROLE_OPTIONS = [
   { value: UserRole.ACCOUNTS, label: "Accounts" },
 ];
 
+// Employee Code is always RS + a 4-digit number + this role letter, e.g. "RS0001S" —
+// the admin only ever types the number; RS and the letter are applied automatically.
+const ROLE_CODE_SUFFIX: Record<string, string> = {
+  [UserRole.SELLER]: "S",
+  [UserRole.DISPATCHER]: "D",
+  [UserRole.ACCOUNTS]: "A",
+};
+
+function buildEmployeeCode(role: string, digits: string): string {
+  if (!role || !digits) return "";
+  return `RS${digits.padStart(4, "0")}${ROLE_CODE_SUFFIX[role]}`;
+}
+
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
@@ -31,7 +44,9 @@ export default function UserCreationPage() {
   const { resolvedTheme } = useTheme();
   const [form, setForm] = useState({
     role: "" as string,
-    employeeCode: "",
+    // Just the digits the admin types — RS prefix and role-letter suffix are applied
+    // automatically wherever the full code is needed (see buildEmployeeCode).
+    employeeNumber: "",
     firstName: "",
     lastName: "",
     phone: "",
@@ -64,17 +79,23 @@ export default function UserCreationPage() {
   function set<K extends keyof typeof form>(key: K, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
     setErrors((e) => ({ ...e, [key]: "" }));
-    if (key === "employeeCode") setCodeAvailable(false);
+    if (key === "employeeNumber" || key === "role") setCodeAvailable(false);
+  }
+
+  function setEmployeeNumber(raw: string) {
+    // Numeric only, capped at 4 digits — RS and the role letter are never typed.
+    set("employeeNumber", raw.replace(/\D/g, "").slice(0, 4));
   }
 
   async function handleCodeBlur() {
-    if (!form.employeeCode) return;
+    const code = buildEmployeeCode(form.role, form.employeeNumber);
+    if (!code) return;
     setCheckingCode(true);
     try {
-      const res = await checkEmployeeCode(form.employeeCode);
+      const res = await checkEmployeeCode(code);
       setCodeAvailable(res.available);
       if (!res.available) {
-        setErrors((e) => ({ ...e, employeeCode: "This Employee Code is already in use (or was previously)." }));
+        setErrors((e) => ({ ...e, employeeNumber: "This Employee Code is already in use (or was previously)." }));
       }
     } catch {
       // Non-blocking: if the check endpoint hiccups, server-side validation on submit still catches it.
@@ -92,7 +113,7 @@ export default function UserCreationPage() {
   function validate(): boolean {
     const next: Record<string, string> = {};
     if (!form.role) next.role = "Select a role.";
-    if (!form.employeeCode) next.employeeCode = "Required.";
+    if (!form.employeeNumber) next.employeeNumber = "Required.";
     if (!form.firstName) next.firstName = "Required.";
     if (!form.lastName) next.lastName = "Required.";
     if (!form.phone) next.phone = "Required.";
@@ -111,7 +132,7 @@ export default function UserCreationPage() {
     try {
       await createUser({
         role: form.role as UserRole,
-        employeeCode: form.employeeCode,
+        employeeCode: buildEmployeeCode(form.role, form.employeeNumber),
         firstName: form.firstName,
         lastName: form.lastName,
         phone: form.phone,
@@ -129,9 +150,11 @@ export default function UserCreationPage() {
     }
   }
 
+  const employeeCode = buildEmployeeCode(form.role, form.employeeNumber);
+  // Mirrors the backend's generateDisplayId exactly: digits only, last 5, zero-padded.
   const idPreview =
-    form.firstName && form.employeeCode.length >= 5
-      ? `${form.firstName.toUpperCase()}-${form.employeeCode.slice(-5)}`
+    form.firstName && employeeCode
+      ? `${form.firstName.toUpperCase()}-${form.employeeNumber.padStart(5, "0")}`
       : "—";
 
   const codeHint = checkingCode
@@ -162,22 +185,43 @@ export default function UserCreationPage() {
                 error={!!errors.role}
               />
             </FormField>
-            <FormField label="Employee Code" required error={errors.employeeCode} hint={codeHint}>
-              <Input
-                placeholder="e.g. AMIT-27891"
-                value={form.employeeCode}
-                onChange={(e) => set("employeeCode", e.target.value)}
-                onBlur={handleCodeBlur}
-                error={!!errors.employeeCode}
-              />
+            <FormField
+              label="Employee Code"
+              required
+              error={errors.employeeNumber}
+              hint={form.role ? codeHint : "Select a role first."}
+            >
+              <div className="flex items-stretch">
+                <span className="flex items-center rounded-l-field border-[1.4px] border-r-0 border-rsl-border bg-rsl-bg px-3 text-body font-bold text-rsl-muted">
+                  RS
+                </span>
+                <Input
+                  inputMode="numeric"
+                  placeholder="0001"
+                  maxLength={4}
+                  value={form.employeeNumber}
+                  onChange={(e) => setEmployeeNumber(e.target.value)}
+                  onBlur={handleCodeBlur}
+                  error={!!errors.employeeNumber}
+                  className="rounded-none text-center"
+                  disabled={!form.role}
+                />
+                <span className="flex items-center rounded-r-field border-[1.4px] border-l-0 border-rsl-border bg-rsl-bg px-3 text-body font-bold text-rsl-muted">
+                  {form.role ? ROLE_CODE_SUFFIX[form.role] : "–"}
+                </span>
+              </div>
             </FormField>
           </div>
 
           <div className="rounded-field border border-rsl-amber/40 bg-notice-bg px-3.5 py-3">
             <p className="text-section-label uppercase text-notice-fg">Generated ID preview</p>
-            <p className="mt-1 text-body-md font-bold text-notice-fg">{idPreview}</p>
+            <p className="mt-1 text-body-md font-bold text-notice-fg">
+              {employeeCode || "—"} {idPreview !== "—" && `· ${idPreview}`}
+            </p>
             <p className="mt-1 text-meta leading-snug text-notice-fg/80">
-              First name + last 5 digits of the employee code. Stored as the primary identifier.
+              Employee Code: RS + the number above + a role letter (S seller, D dispatcher, A
+              accounts), always applied automatically. The generated ID is first name + the last
+              5 digits, stored as the primary identifier.
             </p>
           </div>
         </FormSection>

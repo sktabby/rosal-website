@@ -66,7 +66,7 @@ function LoginForm() {
   const companyName = company?.name ?? "Rosal Safety Private Limited";
   const companyAddress =
     company?.address ??
-    "Godown 1876, Ram Avtar Compound, Shelar Road, Bhiwandi, Thane - 421302, Maharashtra";
+    "Godown 1876, Ram Avtar Compound, Shelar Road, Bhiwandi, Thane - 421302";
   const companyGstin = company?.gstin ?? "27AANCR7712A1ZF";
 
   return (
