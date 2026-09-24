@@ -11,6 +11,7 @@ export function createFactoryUnit(payload: {
   name: string;
   assignedDispatcherId: string;
   address?: string;
+  dispatchFrom?: string[];
 }) {
   return apiRequest<FactoryUnit>("/factory-units", { method: "POST", body: payload });
 }

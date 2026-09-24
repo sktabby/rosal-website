@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Check, Copy, Eye, KeyRound, Pencil, Trash2 } from "lucide-react";
+import { AlertTriangle, Check, Copy, Eye, KeyRound, Pencil, Trash2 } from "lucide-react";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -79,9 +79,33 @@ export function Mono({ children }: { children: React.ReactNode }) {
 }
 
 /**
+ * The row/record still points at this person's id — nothing clears the
+ * reference when a user is deleted — so this is the visible signal that the
+ * assignment has gone stale and needs a real, deliberate replacement rather
+ * than silently continuing to show a name that no longer resolves to an
+ * active account.
+ */
+export function NeedsReassignmentBadge({ formerName }: { formerName?: string }) {
+  return (
+    <span
+      className="inline-flex items-center gap-1 font-bold text-status-rejected-fg"
+      title={
+        formerName
+          ? `Previously assigned to ${formerName} — that account has been deleted.`
+          : "That account has been deleted."
+      }
+    >
+      <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+      Needs reassignment
+    </span>
+  );
+}
+
+/**
  * Some list endpoints only return a user's id (clients carry assignedSellerId
  * with no join). Admin can read /users/:id, so resolve it once per id — the
- * query key is shared with the History page, so the cache is too.
+ * query key is shared with the History page, so the cache is too. Also the
+ * single place that notices when that id now belongs to a deleted user.
  */
 export function UserName({ id, withCode = true }: { id?: string | null; withCode?: boolean }) {
   const { data, isLoading, isError } = useQuery({
@@ -94,6 +118,7 @@ export function UserName({ id, withCode = true }: { id?: string | null; withCode
   if (!id) return <span className="text-rsl-muted">Not assigned</span>;
   if (isLoading) return <Skeleton className="inline-block h-4 w-28" />;
   if (isError || !data) return <span className="text-rsl-muted">Unknown user</span>;
+  if (data.deletedAt) return <NeedsReassignmentBadge formerName={`${data.firstName} ${data.lastName}`} />;
   return (
     <span>
       {data.firstName} {data.lastName}

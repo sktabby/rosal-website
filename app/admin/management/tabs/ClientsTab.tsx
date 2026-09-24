@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { AlertTriangle } from "lucide-react";
 import DataTable, { type DataTableColumn } from "@/components/shared/DataTable";
 import SearchBar from "@/components/shared/SearchBar";
 import { FormField } from "@/components/shared/FormField";
+import SearchableSelect from "@/components/shared/SearchableSelect";
 import {
   EditDialog,
   Initials,
@@ -18,7 +20,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { deleteClient, listClients, updateClient } from "@/lib/api/clients";
+import { getUser, listUsers } from "@/lib/api/users";
 import type { Client } from "@/lib/types";
+import { UserRole } from "@/lib/enums";
 import { fullName } from "@/lib/utils";
 import { toast } from "sonner";
 import { ApiError } from "@/lib/api/http";
@@ -28,7 +32,7 @@ export default function ClientsTab() {
   const { search, setSearch, debouncedSearch, page, setPage } = useListState();
   const [viewing, setViewing] = useState<Client | null>(null);
   const [editing, setEditing] = useState<Client | null>(null);
-  const [editForm, setEditForm] = useState({ firstName: "", lastName: "", phone: "", address: "" });
+  const [editForm, setEditForm] = useState({ firstName: "", lastName: "", phone: "", address: "", assignedSellerId: "" });
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -37,13 +41,58 @@ export default function ClientsTab() {
     queryFn: () => listClients({ search: debouncedSearch || undefined, page }),
   });
 
+  // Same query the Create Client page uses for this picker — page 1 only
+  // (the list endpoint caps at 10), so an org with 10+ sellers won't see
+  // all of them here yet.
+  const { data: sellers } = useQuery({
+    queryKey: ["users", "seller"],
+    queryFn: () => listUsers({ role: UserRole.SELLER, page: 1 }),
+    enabled: !!editing,
+  });
+  // The client list endpoint doesn't reliably join assignedSeller, and even
+  // when it does, that seller might not be on page 1 above — resolve them
+  // explicitly so the current assignment is always a selectable option.
+  const { data: currentSeller } = useQuery({
+    queryKey: ["user", editing?.assignedSellerId],
+    queryFn: () => getUser(editing!.assignedSellerId),
+    enabled: !!editing?.assignedSellerId,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const currentSellerDeleted = !!currentSeller?.deletedAt;
+
+  const sellerOptions = [
+    // A deleted seller is deliberately left out — offering them as "(current)"
+    // would look like a valid pick and invite an accidental no-op save that
+    // keeps the client pointed at an account that no longer exists.
+    ...(currentSeller && !currentSellerDeleted
+      ? [{ value: currentSeller.id, label: fullName(currentSeller), meta: `· ${currentSeller.employeeCode} (current)` }]
+      : []),
+    ...(sellers?.items ?? [])
+      .filter((s) => s.id !== editing?.assignedSellerId)
+      .map((s) => ({ value: s.id, label: fullName(s), meta: `· ${s.employeeCode}` })),
+  ];
+
   function openEdit(c: Client) {
     setEditing(c);
-    setEditForm({ firstName: c.firstName, lastName: c.lastName, phone: c.phone, address: c.address });
+    setEditForm({
+      firstName: c.firstName,
+      lastName: c.lastName,
+      phone: c.phone,
+      address: c.address,
+      assignedSellerId: c.assignedSellerId,
+    });
   }
 
   async function saveEdit() {
     if (!editing) return;
+    // The picker can only be left pointed at a deleted seller if the admin
+    // never touched it — catch that no-op case rather than silently saving
+    // a client still assigned to an account that no longer exists.
+    if (editForm.assignedSellerId === editing.assignedSellerId && currentSellerDeleted) {
+      toast.error("That seller's account has been deleted — assign a different one before saving.");
+      return;
+    }
     setSaving(true);
     try {
       await updateClient(editing.id, editForm);
@@ -143,7 +192,7 @@ export default function ClientsTab() {
         open={!!editing}
         onOpenChange={(o) => !o && setEditing(null)}
         title={editing ? `Edit ${fullName(editing)}` : "Edit Client"}
-        description="GSTIN and assigned seller can't be changed here."
+        description="GSTIN can't be changed here."
         saving={saving}
         onSave={saveEdit}
       >
@@ -158,8 +207,26 @@ export default function ClientsTab() {
         <FormField label="Phone">
           <Input type="tel" value={editForm.phone} onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))} autoComplete="tel" />
         </FormField>
-        <FormField label="Address" className="mb-0">
+        <FormField label="Address">
           <Textarea value={editForm.address} onChange={(e) => setEditForm((f) => ({ ...f, address: e.target.value }))} rows={3} />
+        </FormField>
+        <FormField label="Assign Seller" hint="Only this seller sees the client in the Android app." className="mb-0">
+          {currentSellerDeleted && (
+            <div className="mb-2 flex items-start gap-2 rounded-field border border-danger-fg/25 bg-danger-bg px-3 py-2 text-meta text-danger-fg">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span>
+                {fullName(currentSeller)}&apos;s account has been deleted. Choose a new seller for this client.
+              </span>
+            </div>
+          )}
+          <SearchableSelect
+            value={editForm.assignedSellerId}
+            onChange={(v) => setEditForm((f) => ({ ...f, assignedSellerId: v }))}
+            options={sellerOptions}
+            placeholder="Select a seller"
+            searchPlaceholder="Filter sellers by name or employee code..."
+            error={currentSellerDeleted && editForm.assignedSellerId === editing?.assignedSellerId}
+          />
         </FormField>
       </EditDialog>
     </div>

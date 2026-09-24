@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Info } from "lucide-react";
+import { Info, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +17,7 @@ import { toast } from "sonner";
 export default function FactoryUnitCreationPage() {
   const router = useRouter();
   const [form, setForm] = useState({ name: "", address: "", assignedDispatcherId: "" });
+  const [dispatchFrom, setDispatchFrom] = useState<string[]>([""]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
@@ -47,6 +48,7 @@ export default function FactoryUnitCreationPage() {
         name: form.name,
         assignedDispatcherId: form.assignedDispatcherId,
         address: form.address || undefined,
+        dispatchFrom: dispatchFrom.map((d) => d.trim()).filter(Boolean),
       });
       toast.success("Factory unit created");
       router.push("/admin/management");
@@ -87,13 +89,49 @@ export default function FactoryUnitCreationPage() {
           <FormField
             label="Address"
             hint="Optional — appears as the dispatch address on paperwork."
-            className="mb-0"
           >
             <Textarea
               value={form.address}
               onChange={(e) => set("address", e.target.value)}
               placeholder="Street, area, city, state, PIN"
             />
+          </FormField>
+          <FormField
+            label="Dispatch From"
+            hint="Optional — places orders can be dispatched from (e.g. 1, 2, 3). Sellers pick one when creating an order."
+            className="mb-0"
+          >
+            <div className="flex flex-col gap-2">
+              {dispatchFrom.map((value, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <Input
+                    placeholder={`Dispatch from ${i + 1}`}
+                    value={value}
+                    onChange={(e) =>
+                      setDispatchFrom((list) => list.map((v, j) => (j === i ? e.target.value : v)))
+                    }
+                  />
+                  {dispatchFrom.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      aria-label="Remove"
+                      onClick={() => setDispatchFrom((list) => list.filter((_, j) => j !== i))}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full sm:w-auto sm:self-start"
+                onClick={() => setDispatchFrom((list) => [...list, ""])}
+              >
+                <Plus className="mr-1 h-4 w-4" /> Add another
+              </Button>
+            </div>
           </FormField>
         </FormSection>
 

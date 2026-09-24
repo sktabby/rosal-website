@@ -2,12 +2,20 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Factory } from "lucide-react";
+import { AlertTriangle, Factory } from "lucide-react";
 import DataTable, { type DataTableColumn } from "@/components/shared/DataTable";
 import SearchBar from "@/components/shared/SearchBar";
 import { FormField } from "@/components/shared/FormField";
 import SearchableSelect from "@/components/shared/SearchableSelect";
-import { EditDialog, Mono, RowActions, TitleCell, ViewDialog, useListState } from "@/components/shared/ManagementDialogs";
+import {
+  EditDialog,
+  Mono,
+  NeedsReassignmentBadge,
+  RowActions,
+  TitleCell,
+  ViewDialog,
+  useListState,
+} from "@/components/shared/ManagementDialogs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { deleteFactoryUnit, listFactoryUnits, listUnassignedDispatchers, updateFactoryUnit } from "@/lib/api/factoryUnits";
@@ -51,8 +59,17 @@ export default function FactoryUnitsTab() {
     setEditForm({ name: f.name, address: f.address ?? "", assignedDispatcherId: f.assignedDispatcherId });
   }
 
+  const currentDispatcherDeleted = !!editing?.assignedDispatcher?.deletedAt;
+
   async function saveEdit() {
     if (!editing) return;
+    // The picker can only be left pointed at a deleted dispatcher if the
+    // admin never touched it — catch that no-op case rather than silently
+    // saving a unit still assigned to an account that no longer exists.
+    if (editForm.assignedDispatcherId === editing.assignedDispatcherId && currentDispatcherDeleted) {
+      toast.error("That dispatcher's account has been deleted — assign a different one before saving.");
+      return;
+    }
     setSaving(true);
     try {
       await updateFactoryUnit(editing.id, editForm);
@@ -80,7 +97,10 @@ export default function FactoryUnitsTab() {
   }
 
   const dispatcherOptions = [
-    ...(editing?.assignedDispatcher
+    // A deleted dispatcher is deliberately left out — offering them as
+    // "(current)" would look like a valid pick and invite an accidental
+    // no-op save that keeps the unit pointed at an account that's gone.
+    ...(editing?.assignedDispatcher && !currentDispatcherDeleted
       ? [
           {
             value: editing.assignedDispatcherId,
@@ -112,10 +132,14 @@ export default function FactoryUnitsTab() {
       header: "Assigned Dispatcher",
       render: (r) =>
         r.assignedDispatcher ? (
-          <span>
-            {fullName(r.assignedDispatcher)}{" "}
-            <Mono>{r.assignedDispatcher.employeeCode}</Mono>
-          </span>
+          r.assignedDispatcher.deletedAt ? (
+            <NeedsReassignmentBadge formerName={fullName(r.assignedDispatcher)} />
+          ) : (
+            <span>
+              {fullName(r.assignedDispatcher)}{" "}
+              <Mono>{r.assignedDispatcher.employeeCode}</Mono>
+            </span>
+          )
         ) : (
           <span className="text-rsl-muted">Not assigned</span>
         ),
@@ -160,9 +184,13 @@ export default function FactoryUnitsTab() {
                 {
                   label: "Dispatcher",
                   value: viewing.assignedDispatcher ? (
-                    <span>
-                      {fullName(viewing.assignedDispatcher)} <Mono>{viewing.assignedDispatcher.employeeCode}</Mono>
-                    </span>
+                    viewing.assignedDispatcher.deletedAt ? (
+                      <NeedsReassignmentBadge formerName={fullName(viewing.assignedDispatcher)} />
+                    ) : (
+                      <span>
+                        {fullName(viewing.assignedDispatcher)} <Mono>{viewing.assignedDispatcher.employeeCode}</Mono>
+                      </span>
+                    )
                   ) : (
                     "Not assigned"
                   ),
@@ -191,12 +219,21 @@ export default function FactoryUnitsTab() {
           hint="Only one dispatcher can be assigned per factory unit."
           className="mb-0"
         >
+          {currentDispatcherDeleted && editing?.assignedDispatcher && (
+            <div className="mb-2 flex items-start gap-2 rounded-field border border-danger-fg/25 bg-danger-bg px-3 py-2 text-meta text-danger-fg">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span>
+                {fullName(editing.assignedDispatcher)}&apos;s account has been deleted. Choose a new dispatcher for this unit.
+              </span>
+            </div>
+          )}
           <SearchableSelect
             value={editForm.assignedDispatcherId}
             onChange={(v) => setEditForm((f) => ({ ...f, assignedDispatcherId: v }))}
             options={dispatcherOptions}
             placeholder="Select a dispatcher"
             searchPlaceholder="Filter by name or employee code..."
+            error={currentDispatcherDeleted && editForm.assignedDispatcherId === editing?.assignedDispatcherId}
           />
         </FormField>
       </EditDialog>

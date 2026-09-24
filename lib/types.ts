@@ -95,6 +95,7 @@ export interface FactoryUnit {
   id: string;
   name: string;
   address?: string | null;
+  dispatchFrom?: string[];
   assignedDispatcherId: string;
   deletedAt?: string | null;
   createdAt?: string;
@@ -106,6 +107,10 @@ export interface FactoryUnit {
     employeeCode: string;
     phone?: string;
     email?: string;
+    // Set once the dispatcher's own account is soft-deleted. The FactoryUnit
+    // row still points at them (nothing clears assignedDispatcherId on
+    // delete), so this is what tells the UI the assignment has gone stale.
+    deletedAt?: string | null;
   } | null;
 }
 
