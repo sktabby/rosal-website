@@ -313,3 +313,79 @@ export interface AuditLogEntry {
 export interface DashboardSummary {
   [key: string]: unknown;
 }
+
+// Read side of the RScompany marketing site's form submissions — every
+// model shares id/hidden/createdAt; the rest mirrors prisma/schema.prisma
+// on the backend (ContactLead, QuoteRequest, Enquiry, DistributorApplication,
+// SupportTicket, Subscriber) and each POST DTO the forms already submit.
+export type LeadType = "contact" | "quote" | "enquiry" | "distributor" | "support" | "subscriber";
+
+interface LeadBase {
+  id: string;
+  hidden: boolean;
+  createdAt: string;
+}
+
+export interface ContactLead extends LeadBase {
+  name: string;
+  email: string;
+  phone: string;
+  subject: "General" | "Sales" | "Support" | "Complaint";
+  message: string;
+}
+
+export interface QuoteRequest extends LeadBase {
+  companyName: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  city: string;
+  state: string;
+  applicationType: "Industrial" | "Commercial" | "Residential" | "Hospitality";
+  budgetRange?: string | null;
+  message?: string | null;
+  products: { id: string; qty: number }[];
+}
+
+export interface Enquiry extends LeadBase {
+  name: string;
+  email: string;
+  phone: string;
+  company?: string | null;
+  city?: string | null;
+  message: string;
+  productName?: string | null;
+  productSlug?: string | null;
+  productLine?: string | null;
+  productCategory?: string | null;
+}
+
+export interface DistributorApplication extends LeadBase {
+  companyName: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  city: string;
+  state: string;
+  country: string;
+  zipcode: string;
+  gstin: string;
+  experience?: string | null;
+  message?: string | null;
+}
+
+export interface SupportTicketLead extends LeadBase {
+  contactName: string;
+  company: string;
+  phone: string;
+  productType: string;
+  category: string;
+  subject: string;
+  email?: string | null;
+  invoice?: string | null;
+  description?: string | null;
+}
+
+export interface Subscriber extends LeadBase {
+  email: string;
+}

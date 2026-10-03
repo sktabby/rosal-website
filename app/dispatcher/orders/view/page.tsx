@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { Suspense, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,29 +13,30 @@ import { formatINR, fullName, num } from "@/lib/utils";
 import { ApiError } from "@/lib/api/http";
 import { toast } from "sonner";
 
-export default function DispatcherOrderDetailPage() {
-  const params = useParams<{ id: string }>();
+function DispatcherOrderDetailInner() {
+  const id = useSearchParams().get("id") ?? "";
   const router = useRouter();
   const queryClient = useQueryClient();
 
   const { data: order, isLoading } = useQuery({
-    queryKey: ["orders", "detail", params.id],
-    queryFn: () => getOrder(params.id),
+    queryKey: ["orders", "detail", id],
+    queryFn: () => getOrder(id),
+    enabled: !!id,
   });
 
   // Live subscription for this specific order per the confirmed socket contract.
   useEffect(() => {
     const socket = getSocket();
-    if (!socket || !params.id) return;
-    socket.emit("order:subscribe", params.id);
-  }, [params.id]);
+    if (!socket || !id) return;
+    socket.emit("order:subscribe", id);
+  }, [id]);
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["orders"] });
   };
 
   const acceptMutation = useMutation({
-    mutationFn: () => acceptOrder(params.id),
+    mutationFn: () => acceptOrder(id),
     onSuccess: () => {
       toast.success("Order accepted");
       invalidate();
@@ -44,7 +45,7 @@ export default function DispatcherOrderDetailPage() {
   });
 
   const rejectMutation = useMutation({
-    mutationFn: () => rejectOrder(params.id),
+    mutationFn: () => rejectOrder(id),
     onSuccess: () => {
       toast.success("Order rejected");
       invalidate();
@@ -54,7 +55,7 @@ export default function DispatcherOrderDetailPage() {
   });
 
   const completeMutation = useMutation({
-    mutationFn: () => completeOrder(params.id),
+    mutationFn: () => completeOrder(id),
     onSuccess: () => {
       toast.success("Order marked as dispatched");
       invalidate();
@@ -163,6 +164,14 @@ export default function DispatcherOrderDetailPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function DispatcherOrderDetailPage() {
+  return (
+    <Suspense fallback={<div className="space-y-3 max-w-2xl"><Skeleton className="h-6 w-1/3" /><Skeleton className="h-24 w-full" /></div>}>
+      <DispatcherOrderDetailInner />
+    </Suspense>
   );
 }
 

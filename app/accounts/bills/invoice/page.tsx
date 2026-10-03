@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,12 +37,13 @@ const DELIVERY_OPTIONS = [
 
 const pdfName = (invoiceNumber: string) => `${invoiceNumber.replace(/[^A-Za-z0-9._-]/g, "_")}.pdf`;
 
-export default function CreateInvoicePage() {
-  const params = useParams<{ billId: string }>();
+function CreateInvoiceInner() {
+  const billId = useSearchParams().get("billId") ?? "";
 
   const { data: bill, isLoading, isError, refetch } = useQuery({
-    queryKey: ["bills", "detail", params.billId],
-    queryFn: () => getBill(params.billId),
+    queryKey: ["bills", "detail", billId],
+    queryFn: () => getBill(billId),
+    enabled: !!billId,
   });
 
   if (isError) {
@@ -69,6 +70,14 @@ export default function CreateInvoicePage() {
   }
 
   return bill.invoice ? <AlreadyInvoiced bill={bill} /> : <InvoiceForm bill={bill} />;
+}
+
+export default function CreateInvoicePage() {
+  return (
+    <Suspense fallback={<div className="max-w-3xl space-y-3"><Skeleton className="h-6 w-1/3" /><Skeleton className="h-64 w-full" /></div>}>
+      <CreateInvoiceInner />
+    </Suspense>
+  );
 }
 
 /** The bill already has its invoice — show it instead of offering a second one. */

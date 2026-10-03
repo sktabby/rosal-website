@@ -2,21 +2,31 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/shared/FormField";
 import { changePassword } from "@/lib/api/auth";
 import { ApiError } from "@/lib/api/http";
+import { useAuthGuard } from "@/hooks/useRoleGuard";
 import { toast } from "sonner";
 
 export default function ChangePasswordPage() {
   const router = useRouter();
+  const { loading: guardLoading, authorized } = useAuthGuard();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+
+  if (guardLoading || !authorized) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-rsl-bg">
+        <Loader2 className="h-6 w-6 animate-spin text-rsl-red" />
+      </div>
+    );
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

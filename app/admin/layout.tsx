@@ -1,25 +1,17 @@
 "use client";
 
-import { useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import AppShell from "@/components/shared/AppShell";
 import { ADMIN_NAV, ROLE_LABEL, resolvePageTitle } from "@/lib/nav";
-import { useSession } from "@/providers/SessionProvider";
+import { useRoleGuard } from "@/hooks/useRoleGuard";
 import { getCurrentFinancialYear } from "@/lib/financialYear";
 import { Loader2 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const { user, loading } = useSession();
+  const { loading, authorized } = useRoleGuard("ADMIN");
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/login");
-    }
-  }, [loading, user, router]);
-
-  if (loading || !user) {
+  if (loading || !authorized) {
     return (
       <div className="flex h-screen items-center justify-center bg-rsl-bg">
         <Loader2 className="h-6 w-6 animate-spin text-rsl-red" />

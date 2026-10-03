@@ -37,7 +37,7 @@ export default function DispatcherHistoryPage() {
         <>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {data.items.map((o) => (
-              <OrderCard key={o.id} order={o} onClick={() => router.push(`/dispatcher/orders/${o.id}`)} />
+              <OrderCard key={o.id} order={o} onClick={() => router.push(`/dispatcher/orders/view?id=${o.id}`)} />
             ))}
           </div>
           <Pagination page={data.page} pageSize={data.pageSize} total={data.total} onPageChange={setPage} />

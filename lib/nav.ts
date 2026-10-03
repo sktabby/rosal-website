@@ -12,6 +12,7 @@ import {
   KanbanSquare,
   Inbox,
   FileText,
+  MessageSquare,
   type LucideIcon,
 } from "lucide-react";
 
@@ -29,6 +30,7 @@ export const ADMIN_NAV: NavItem[] = [
   { href: "/admin/transport/new", label: "Transport Creation", icon: Truck },
   { href: "/admin/factory-units/new", label: "Factory Units", icon: Factory },
   { href: "/admin/management", label: "Management", icon: ClipboardList },
+  { href: "/admin/leads", label: "Leads", icon: MessageSquare },
   { href: "/admin/history", label: "History", icon: History },
   { href: "/admin/account", label: "Account", icon: UserCircle },
 ];
@@ -60,8 +62,8 @@ const EXTRA_TITLES: Array<{ test: RegExp; title: string }> = [
   { test: /^\/admin\/products\/new/, title: "Product Creation" },
   { test: /^\/admin\/transport\/new/, title: "Transport Creation" },
   { test: /^\/admin\/factory-units\/new/, title: "Factory Unit Creation" },
-  { test: /^\/dispatcher\/orders\/[^/]+$/, title: "Order Detail" },
-  { test: /^\/accounts\/bills\/[^/]+\/invoice$/, title: "Create Invoice" },
+  { test: /^\/dispatcher\/orders\/view/, title: "Order Detail" },
+  { test: /^\/accounts\/bills\/invoice/, title: "Create Invoice" },
 ];
 
 export function resolvePageTitle(pathname: string, items: NavItem[]): string {

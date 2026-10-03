@@ -64,7 +64,7 @@ export default function DispatcherQueuePage() {
           Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)
         ) : grouped[mobileTab]?.length ? (
           grouped[mobileTab].map((o) => (
-            <OrderCard key={o.id} order={o} onClick={() => router.push(`/dispatcher/orders/${o.id}`)} />
+            <OrderCard key={o.id} order={o} onClick={() => router.push(`/dispatcher/orders/view?id=${o.id}`)} />
           ))
         ) : (
           <EmptyState title={`No ${mobileTab.toLowerCase()} orders`} description="New orders will appear here automatically." />
@@ -83,7 +83,7 @@ export default function DispatcherQueuePage() {
                 Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)
               ) : grouped[c.status]?.length ? (
                 grouped[c.status].map((o) => (
-                  <OrderCard key={o.id} order={o} onClick={() => router.push(`/dispatcher/orders/${o.id}`)} />
+                  <OrderCard key={o.id} order={o} onClick={() => router.push(`/dispatcher/orders/view?id=${o.id}`)} />
                 ))
               ) : (
                 <EmptyState title="Nothing here" />

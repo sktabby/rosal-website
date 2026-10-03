@@ -110,7 +110,7 @@ export default function BillsInboxPage() {
           pageSize={data?.pageSize ?? 10}
           total={data?.total ?? 0}
           onPageChange={setPage}
-          onRowClick={(r) => router.push(`/accounts/bills/${r.id}/invoice`)}
+          onRowClick={(r) => router.push(`/accounts/bills/invoice?billId=${r.id}`)}
           cardBadge={(r) => <StatusChip status={r.status} />}
         />
       )}
