@@ -129,13 +129,9 @@ function InvoiceForm({ bill }: { bill: Bill }) {
   const [dispatchDocNo, setDispatchDocNo] = useState("");
   const [termsOfDelivery, setTermsOfDelivery] = useState(pi?.transportType === "DOOR_DELIVERY" ? "Door Delivery" : pi ? "Godown" : "");
   const [remarks, setRemarks] = useState("");
-  const [buyerDifferent, setBuyerDifferent] = useState(false);
-  const [buyerName, setBuyerName] = useState("");
-  const [buyerAddress, setBuyerAddress] = useState("");
-  const [buyerGstin, setBuyerGstin] = useState("");
-  const [buyerContact, setBuyerContact] = useState("");
-  const [buyerState, setBuyerState] = useState(stateFromGstin(client?.gstin));
-  const [consigneeState, setConsigneeState] = useState(stateFromGstin(client?.gstin));
+  const derivedState = stateFromGstin(client?.gstin);
+  const [buyerState, setBuyerState] = useState(derivedState);
+  const [consigneeState, setConsigneeState] = useState(derivedState);
   const [externalFileUrl, setExternalFileUrl] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -169,10 +165,6 @@ function InvoiceForm({ bill }: { bill: Bill }) {
         dispatchDocNo: dispatchDocNo || undefined,
         termsOfDelivery: termsOfDelivery || undefined,
         remarks: remarks || undefined,
-        buyerName: buyerDifferent ? buyerName || undefined : undefined,
-        buyerAddress: buyerDifferent ? buyerAddress || undefined : undefined,
-        buyerGstin: buyerDifferent ? buyerGstin || undefined : undefined,
-        buyerContact: buyerDifferent ? buyerContact || undefined : undefined,
         buyerState: buyerState || undefined,
         consigneeState: consigneeState || undefined,
         externalFileUrl: externalFileUrl || undefined,
@@ -216,7 +208,7 @@ function InvoiceForm({ bill }: { bill: Bill }) {
           <Card title="Bill To">
             <Row label="Client" value={client ? fullName(client) : "—"} />
             <Row label="GSTIN" value={client?.gstin ?? "—"} />
-            <Row label="Address" value={client?.address ?? "—"} />
+            <Row label="Address/Bill to" value={client?.address ?? "—"} />
             <Row label="Ship To" value={pi?.shipToAddress ?? "—"} />
           </Card>
 
@@ -294,8 +286,12 @@ function InvoiceForm({ bill }: { bill: Bill }) {
               <FormField label="Dispatch Doc No." hint="Optional">
                 <Input value={dispatchDocNo} onChange={(e) => setDispatchDocNo(e.target.value)} />
               </FormField>
-              <FormField label="Terms of Delivery" hint={pi ? "Pre-filled from the PI's transport type" : undefined}>
-                <SimpleSelect value={termsOfDelivery} onChange={setTermsOfDelivery} options={DELIVERY_OPTIONS} placeholder="Select" />
+              <FormField label="Terms of Delivery" hint={pi ? "Taken from the PI's transport type" : undefined}>
+                {pi ? (
+                  <Input value={termsOfDelivery} disabled readOnly />
+                ) : (
+                  <SimpleSelect value={termsOfDelivery} onChange={setTermsOfDelivery} options={DELIVERY_OPTIONS} placeholder="Select" />
+                )}
               </FormField>
               <FormField label="Remarks" hint="Optional — defaults to the sales person on the PDF">
                 <Input value={remarks} onChange={(e) => setRemarks(e.target.value)} />
@@ -303,40 +299,13 @@ function InvoiceForm({ bill }: { bill: Bill }) {
             </div>
           </Card>
 
-          <Card
-            title="Buyer & Consignee"
-            action={
-              <button type="button" onClick={() => setBuyerDifferent((v) => !v)} className="text-[11px] font-bold text-rsl-red hover:underline">
-                {buyerDifferent ? "Use client details" : "Buyer is different from client"}
-              </button>
-            }
-          >
-            {buyerDifferent && (
-              <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
-                <FormField label="Buyer Name"><Input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} /></FormField>
-                <FormField label="Buyer GSTIN">
-                  <Input
-                    value={buyerGstin}
-                    onChange={(e) => {
-                      const v = e.target.value.toUpperCase();
-                      setBuyerGstin(v);
-                      const s = stateFromGstin(v);
-                      if (s) setBuyerState(s);
-                    }}
-                  />
-                </FormField>
-                <FormField label="Buyer Contact"><Input value={buyerContact} onChange={(e) => setBuyerContact(e.target.value)} /></FormField>
-                <FormField label="Buyer Address" className="sm:col-span-2">
-                  <Input value={buyerAddress} onChange={(e) => setBuyerAddress(e.target.value)} />
-                </FormField>
-              </div>
-            )}
-            <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2 mt-1">
-              <FormField label="Buyer State" hint="Filled from the GSTIN — edit if needed">
-                <Input value={buyerState} onChange={(e) => setBuyerState(e.target.value)} />
+          <Card title="Buyer & Consignee">
+            <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
+              <FormField label="Buyer State" hint={derivedState ? "Taken from the client's GSTIN" : "Not available from the client's GSTIN"}>
+                <Input value={buyerState} onChange={(e) => setBuyerState(e.target.value)} disabled={!!derivedState} readOnly={!!derivedState} />
               </FormField>
-              <FormField label="Consignee State" hint="Filled from the GSTIN — edit if needed">
-                <Input value={consigneeState} onChange={(e) => setConsigneeState(e.target.value)} />
+              <FormField label="Consignee State" hint={derivedState ? "Taken from the client's GSTIN" : "Not available from the client's GSTIN"}>
+                <Input value={consigneeState} onChange={(e) => setConsigneeState(e.target.value)} disabled={!!derivedState} readOnly={!!derivedState} />
               </FormField>
             </div>
           </Card>
