@@ -5,15 +5,14 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { KeyRound } from "lucide-react";
 import DataTable, { type DataTableColumn } from "@/components/shared/DataTable";
 import SearchBar from "@/components/shared/SearchBar";
-import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { FormField } from "@/components/shared/FormField";
 import {
   EditDialog,
   Initials,
   Mono,
-  PasswordResultDialog,
   ROLE_NAME,
   RowActions,
+  SetPasswordDialog,
   StatusPill,
   TitleCell,
   ViewDialog,
@@ -36,7 +35,6 @@ export default function UsersTab() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [resettingFor, setResettingFor] = useState<UserRecord | null>(null);
   const [resettingPassword, setResettingPassword] = useState(false);
-  const [resetResult, setResetResult] = useState<{ name: string; password: string } | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["users", "management", debouncedSearch, page],
@@ -63,15 +61,15 @@ export default function UsersTab() {
     }
   }
 
-  async function confirmResetPassword() {
+  async function confirmResetPassword(newPassword: string) {
     if (!resettingFor) return;
     setResettingPassword(true);
     try {
-      const { temporaryPassword } = await resetUserPassword(resettingFor.id);
-      setResetResult({ name: fullName(resettingFor), password: temporaryPassword });
+      await resetUserPassword(resettingFor.id, newPassword);
+      toast.success(`Password set for ${fullName(resettingFor)}`);
       setResettingFor(null);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Couldn't reset password.");
+      toast.error(err instanceof ApiError ? err.message : "Couldn't set password.");
     } finally {
       setResettingPassword(false);
     }
@@ -159,22 +157,12 @@ export default function UsersTab() {
         }
       />
 
-      <ConfirmDialog
+      <SetPasswordDialog
         open={!!resettingFor}
         onOpenChange={(o) => !o && setResettingFor(null)}
-        title={resettingFor ? `Reset password for "${fullName(resettingFor)}"?` : ""}
-        description="Their current password stops working immediately. A new temporary password is generated and emailed to them, and shown here once."
-        confirmLabel="Reset Password"
-        destructive={false}
-        loading={resettingPassword}
-        onConfirm={confirmResetPassword}
-      />
-
-      <PasswordResultDialog
-        open={!!resetResult}
-        onOpenChange={(o) => !o && setResetResult(null)}
-        itemName={resetResult?.name ?? ""}
-        password={resetResult?.password ?? ""}
+        itemName={resettingFor ? fullName(resettingFor) : ""}
+        saving={resettingPassword}
+        onSave={confirmResetPassword}
       />
 
       <EditDialog

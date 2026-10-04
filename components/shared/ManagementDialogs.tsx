@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, Check, Copy, Eye, KeyRound, Pencil, Trash2 } from "lucide-react";
+import { AlertTriangle, Eye, KeyRound, Pencil, Trash2 } from "lucide-react";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
+import { FormField } from "@/components/shared/FormField";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
@@ -217,60 +219,79 @@ export function RowActions({ onView, onEdit, onDelete, deleting, itemName, itemK
   );
 }
 
-// ---- Password reset result ---------------------------------------------------
+// ---- Set password -----------------------------------------------------------
 
-export function PasswordResultDialog({
+export function SetPasswordDialog({
   open,
   onOpenChange,
   itemName,
-  password,
+  saving,
+  onSave,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   itemName: string;
-  password: string;
+  saving: boolean;
+  onSave: (newPassword: string) => void;
 }) {
-  const [copied, setCopied] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [touched, setTouched] = useState(false);
 
   useEffect(() => {
-    if (!open) setCopied(false);
+    if (!open) {
+      setPassword("");
+      setConfirm("");
+      setTouched(false);
+    }
   }, [open]);
 
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(password);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Clipboard access can be blocked; the password is still visible to select manually.
-    }
-  }
+  const tooShort = password.length > 0 && password.length < 8;
+  const mismatch = confirm.length > 0 && password !== confirm;
+  const valid = password.length >= 8 && password === confirm;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent maxWidthClass="lg:max-w-[440px]">
-        <DialogHeader>
-          <DialogTitle className="font-bold">Password reset for {itemName}</DialogTitle>
-          <DialogDescription>
-            Emailed to them just now. This is shown only once — copy it now if you need to share it directly.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex items-center justify-between gap-3 rounded-field border border-rsl-border bg-rsl-bg px-3.5 py-3">
-          <span className="select-all font-mono text-[15px] font-bold tracking-wide text-ink">{password}</span>
-          <button
-            onClick={copy}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-field text-rsl-muted transition-colors hover:bg-surface hover:text-ink"
-            aria-label="Copy password"
-            title="Copy"
-          >
-            {copied ? <Check className="h-4 w-4 text-status-done-fg" /> : <Copy className="h-4 w-4" />}
-          </button>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
-            Done
-          </Button>
-        </DialogFooter>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setTouched(true);
+            if (valid) onSave(password);
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle className="font-bold">Set password for {itemName}</DialogTitle>
+            <DialogDescription>Their current password stops working immediately once saved.</DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-1 gap-x-4">
+            <FormField label="New Password" error={touched && tooShort ? "Must be at least 8 characters." : undefined}>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+                autoFocus
+              />
+            </FormField>
+            <FormField label="Confirm Password" error={touched && mismatch ? "Passwords don't match." : undefined}>
+              <Input
+                type="password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                autoComplete="new-password"
+              />
+            </FormField>
+          </div>
+          <DialogFooter className="border-t border-rsl-border pt-4">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
+              Cancel
+            </Button>
+            <Button type="submit" variant="red" loading={saving} className="w-full sm:w-auto">
+              Set Password
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

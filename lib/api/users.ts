@@ -42,12 +42,7 @@ export function deleteUser(id: string) {
   return apiRequest<{ message?: string }>(`/users/${id}`, { method: "DELETE" });
 }
 
-/**
- * Generates a new temporary password server-side and emails it to the user.
- * The plaintext is returned once, in this response only, so the admin can
- * relay it directly if delivery fails — it is never stored or retrievable
- * again after this call.
- */
-export function resetUserPassword(id: string) {
-  return apiRequest<{ temporaryPassword: string }>(`/users/${id}/reset-password`, { method: "POST" });
+/** Admin sets the new password directly; it's hashed server-side and emailed to the user. */
+export function resetUserPassword(id: string, newPassword: string) {
+  return apiRequest<{ message?: string }>(`/users/${id}/reset-password`, { method: "POST", body: { newPassword } });
 }
